@@ -1,6 +1,17 @@
 import { redirect } from 'next/navigation'
 import { getSession, getPortalForRoles } from '@/lib/auth/session'
 import { UserNav } from '@/components/shared/user-nav'
+import { SidebarNav, type NavItem } from '@/components/shared/sidebar-nav'
+import { NotificationBell } from '@/components/shared/notification-bell'
+import { getUnreadCountAction } from '@/app/actions/notifications'
+import { LayoutDashboard, BookOpen, ClipboardList, CreditCard } from 'lucide-react'
+
+const studentNavItems: NavItem[] = [
+  { label: 'Dashboard', href: '/s', icon: LayoutDashboard },
+  { label: 'Mis Cursos', href: '/s/courses', icon: BookOpen },
+  { label: 'Calificaciones', href: '/s/grades', icon: ClipboardList },
+  { label: 'Pagos', href: '/s/payments', icon: CreditCard },
+]
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession()
@@ -11,6 +22,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
   if (portal !== '/s') redirect(portal)
 
   const activeTenant = session.tenants.find((t) => t.id === session.activeTenantId)
+  const unreadCount = await getUnreadCountAction()
 
   return (
     <div className="min-h-screen bg-background">
@@ -19,14 +31,22 @@ export default async function StudentLayout({ children }: { children: React.Reac
           <span className="text-lg font-semibold tracking-tight">TUTO</span>
           <span className="text-sm text-muted-foreground">Estudiante</span>
         </div>
-        <UserNav
-          fullName={session.profile.fullName}
-          email={session.email}
-          roles={session.roles}
-          tenantName={activeTenant?.name}
-        />
+        <div className="flex items-center gap-2">
+          <NotificationBell initialUnreadCount={unreadCount} />
+          <UserNav
+            fullName={session.profile.fullName}
+            email={session.email}
+            roles={session.roles}
+            tenantName={activeTenant?.name}
+          />
+        </div>
       </header>
-      <main className="mx-auto max-w-7xl p-6">{children}</main>
+      <div className="flex">
+        <aside className="hidden md:flex md:w-56 md:flex-col md:border-r md:bg-background/50 min-h-[calc(100vh-57px)] shrink-0 px-2">
+          <SidebarNav items={studentNavItems} />
+        </aside>
+        <main className="flex-1 p-6">{children}</main>
+      </div>
     </div>
   )
 }

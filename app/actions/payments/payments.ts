@@ -7,6 +7,7 @@ import { logActivity } from '@/lib/audit/activity'
 import { recordPaymentSchema, voidPaymentSchema } from '@/lib/validators/payments'
 import { suggestAllocation } from '@/lib/payments/allocate'
 import { getPendingChargesForAllocation } from '@/lib/db/payments'
+import { createNotification } from '@/lib/notifications/send'
 
 export async function recordPaymentAction(_prevState: unknown, formData: FormData) {
   const session = await requireSession()
@@ -108,6 +109,15 @@ export async function recordPaymentAction(_prevState: unknown, formData: FormDat
     resourceId: payment.id,
     summary: `Pago de $${amount} registrado para estudiante ${studentId}`,
     metadata: { studentId, amount, method },
+  })
+
+  await createNotification({
+    tenantId: session.activeTenantId,
+    userId: studentId,
+    kind: 'payment_received',
+    title: 'Pago recibido',
+    body: `Se ha registrado un pago de $${amount} en tu cuenta.`,
+    link: '/s/payments',
   })
 
   return { success: true, id: payment.id }

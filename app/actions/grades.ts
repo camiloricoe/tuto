@@ -6,6 +6,7 @@ import { requirePermission } from '@/lib/auth/permissions'
 import { logActivity } from '@/lib/audit/activity'
 import { saveGradeDraftsSchema, publishGradesSchema, closeCourseSchema } from '@/lib/validators/grades'
 import { calculateFinalGrade, applyLetter, roundGrade } from '@/lib/grades/calculate'
+import { createBulkNotifications } from '@/lib/notifications/send'
 
 export async function saveDraftsAction(_prevState: unknown, formData: FormData) {
   const session = await requireSession()
@@ -122,6 +123,7 @@ export async function publishGradesAction(_prevState: unknown, formData: FormDat
     .is('deleted_at', null)
 
   const now = new Date().toISOString()
+  const notifiedStudentIds: Array<{ tenantId: string; userId: string }> = []
 
   for (const enrollment of enrollments ?? []) {
     const { data: gradeRows } = await admin
@@ -172,6 +174,21 @@ export async function publishGradesAction(_prevState: unknown, formData: FormDat
       })
       .eq('id', enrollment.id)
       .eq('tenant_id', session.activeTenantId)
+
+    notifiedStudentIds.push({ tenantId: session.activeTenantId, userId: enrollment.student_id })
+  }
+
+  if (notifiedStudentIds.length > 0) {
+    await createBulkNotifications(
+      notifiedStudentIds.map((s) => ({
+        tenantId: s.tenantId,
+        userId: s.userId,
+        kind: 'grade_published' as const,
+        title: 'Notas publicadas',
+        body: 'Tus notas han sido publicadas. Revisa tus calificaciones.',
+        link: '/s/grades',
+      })),
+    )
   }
 
   await logActivity({

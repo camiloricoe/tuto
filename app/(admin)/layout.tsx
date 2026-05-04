@@ -1,6 +1,46 @@
 import { redirect } from 'next/navigation'
 import { getSession, getPortalForRoles } from '@/lib/auth/session'
 import { UserNav } from '@/components/shared/user-nav'
+import { SidebarNav, type NavItem } from '@/components/shared/sidebar-nav'
+import { NotificationBell } from '@/components/shared/notification-bell'
+import { getUnreadCountAction } from '@/app/actions/notifications'
+import {
+  LayoutDashboard,
+  Users,
+  GraduationCap,
+  BookOpen,
+  CreditCard,
+  Receipt,
+  FileText,
+  Upload,
+  Settings,
+} from 'lucide-react'
+
+const adminNavItems: NavItem[] = [
+  { label: 'Dashboard', href: '/a', icon: LayoutDashboard },
+  { label: 'Usuarios', href: '/a/users', icon: Users },
+  {
+    label: 'Academico',
+    href: '/a/academic/programs',
+    icon: GraduationCap,
+    children: [
+      { label: 'Programas', href: '/a/academic/programs' },
+      { label: 'Cursos', href: '/a/academic/courses' },
+    ],
+  },
+  {
+    label: 'Pagos',
+    href: '/a/payments/concepts',
+    icon: CreditCard,
+    children: [
+      { label: 'Conceptos', href: '/a/payments/concepts' },
+      { label: 'Registrar pago', href: '/a/payments' },
+      { label: 'Cargos', href: '/a/payments/charges' },
+    ],
+  },
+  { label: 'Importar', href: '/a/import', icon: Upload },
+  { label: 'Configuracion', href: '/a/settings', icon: Settings },
+]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession()
@@ -11,6 +51,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (portal !== '/a') redirect(portal)
 
   const activeTenant = session.tenants.find((t) => t.id === session.activeTenantId)
+  const unreadCount = await getUnreadCountAction()
 
   return (
     <div className="min-h-screen bg-background">
@@ -24,14 +65,22 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </span>
           )}
         </div>
-        <UserNav
-          fullName={session.profile.fullName}
-          email={session.email}
-          roles={session.roles}
-          tenantName={activeTenant?.name}
-        />
+        <div className="flex items-center gap-2">
+          <NotificationBell initialUnreadCount={unreadCount} />
+          <UserNav
+            fullName={session.profile.fullName}
+            email={session.email}
+            roles={session.roles}
+            tenantName={activeTenant?.name}
+          />
+        </div>
       </header>
-      <main className="mx-auto max-w-7xl p-6">{children}</main>
+      <div className="flex">
+        <aside className="hidden md:flex md:w-56 md:flex-col md:border-r md:bg-background/50 min-h-[calc(100vh-57px)] shrink-0 px-2">
+          <SidebarNav items={adminNavItems} />
+        </aside>
+        <main className="flex-1 p-6">{children}</main>
+      </div>
     </div>
   )
 }

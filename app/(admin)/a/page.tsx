@@ -1,47 +1,120 @@
 import { requireSession } from '@/lib/auth/session'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Users, BookOpen, AlertCircle, Activity } from 'lucide-react'
 
 export default async function AdminDashboard() {
   const session = await requireSession()
+  const tenantId = session.activeTenantId ?? ''
+  const admin = createAdminClient()
+
+  const [enrollmentsRes, coursesRes, overdueRes, activityRes] = await Promise.all([
+    admin
+      .from('enrollments')
+      .select('id', { count: 'exact', head: true })
+      .eq('tenant_id', tenantId)
+      .is('deleted_at', null),
+    admin
+      .from('courses')
+      .select('id', { count: 'exact', head: true })
+      .eq('tenant_id', tenantId)
+      .is('deleted_at', null),
+    admin
+      .from('v_overdue_charges')
+      .select('charge_id', { count: 'exact', head: true })
+      .eq('tenant_id', tenantId),
+    admin
+      .from('activity_log')
+      .select('id, action_code, summary, occurred_at')
+      .eq('tenant_id', tenantId)
+      .order('occurred_at', { ascending: false })
+      .limit(10),
+  ])
+
+  const enrollmentCount = enrollmentsRes.count ?? 0
+  const courseCount = coursesRes.count ?? 0
+  const overdueCount = overdueRes.count ?? 0
+  const recentActivity = activityRes.data ?? []
 
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Dashboard</h1>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Card className="glass">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Bienvenido</CardTitle>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="glass-subtle">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Estudiantes</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-semibold">{session.profile.fullName}</p>
-            <p className="text-sm text-muted-foreground">{session.roles.join(', ')}</p>
+            <p className="text-3xl font-bold">{enrollmentCount}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Matriculas activas</p>
           </CardContent>
         </Card>
-        {session.permissions.has('users:read') && (
-          <Card className="glass">
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-muted-foreground">Usuarios</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <a href="/a/users" className="text-primary hover:underline">
-                Gestionar usuarios
-              </a>
-            </CardContent>
-          </Card>
-        )}
-        {session.permissions.has('tenants:write') && (
-          <Card className="glass">
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-muted-foreground">Tenants</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <a href="/a/tenants" className="text-primary hover:underline">
-                Gestionar tenants
-              </a>
-            </CardContent>
-          </Card>
-        )}
+
+        <Card className="glass-subtle">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Cursos</CardTitle>
+            <BookOpen className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold">{courseCount}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Cursos activos</p>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-subtle">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Cargos vencidos
+            </CardTitle>
+            <AlertCircle className="h-4 w-4 text-destructive" />
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold text-destructive">{overdueCount}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Requieren atencion</p>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-subtle">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Actividad</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold">{recentActivity.length}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Eventos recientes</p>
+          </CardContent>
+        </Card>
       </div>
+
+      <Card className="glass-subtle">
+        <CardHeader>
+          <CardTitle className="text-base font-semibold">Actividad reciente</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {recentActivity.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No hay actividad reciente.</p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {recentActivity.map((entry) => (
+                <li key={entry.id} className="flex items-start justify-between gap-4 py-3">
+                  <div>
+                    <p className="text-sm font-medium">{entry.summary ?? entry.action_code}</p>
+                    <p className="text-xs text-muted-foreground">{entry.action_code}</p>
+                  </div>
+                  <time className="shrink-0 text-xs text-muted-foreground">
+                    {new Date(entry.occurred_at).toLocaleString('es', {
+                      dateStyle: 'short',
+                      timeStyle: 'short',
+                    })}
+                  </time>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

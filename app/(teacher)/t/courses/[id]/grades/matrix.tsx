@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { saveDraftsAction } from '@/app/actions/grades'
+import { useRouter } from 'next/navigation'
+import { saveDraftsAction, publishGradesAction } from '@/app/actions/grades'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
@@ -37,7 +38,9 @@ type Props = {
 }
 
 export default function GradesMatrix({ courseId, evaluations, enrollments }: Props) {
+  const router = useRouter()
   const [pending, startTransition] = useTransition()
+  const [publishPending, startPublishTransition] = useTransition()
   const [message, setMessage] = useState<string | null>(null)
 
   // Local state: enrollmentId -> evaluationId -> value
@@ -92,6 +95,26 @@ export default function GradesMatrix({ courseId, evaluations, enrollments }: Pro
         setMessage(result.error ?? 'Error al guardar')
       } else {
         setMessage('Notas guardadas como borrador.')
+      }
+    })
+  }
+
+  function handlePublish() {
+    const confirmed = window.confirm(
+      '¿Estás seguro de publicar todas las notas? Esta acción no se puede deshacer.',
+    )
+    if (!confirmed) return
+
+    const formData = new FormData()
+    formData.set('courseId', courseId)
+
+    startPublishTransition(async () => {
+      const result = await publishGradesAction(null, formData)
+      if (result && 'error' in result) {
+        setMessage(result.error ?? 'Error al publicar')
+      } else {
+        setMessage('Notas publicadas exitosamente.')
+        router.refresh()
       }
     })
   }
@@ -165,8 +188,11 @@ export default function GradesMatrix({ courseId, evaluations, enrollments }: Pro
       )}
 
       <div className="flex gap-2">
-        <Button onClick={handleSave} disabled={pending}>
+        <Button variant="outline" onClick={handleSave} disabled={pending || publishPending}>
           {pending ? 'Guardando...' : 'Guardar borradores'}
+        </Button>
+        <Button onClick={handlePublish} disabled={pending || publishPending}>
+          {publishPending ? 'Publicando...' : 'Publicar notas'}
         </Button>
       </div>
     </div>
