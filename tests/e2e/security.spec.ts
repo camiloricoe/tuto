@@ -22,14 +22,17 @@ test.describe('Security headers', () => {
 })
 
 test.describe('Cookie security', () => {
-  test('supabase auth cookies are HttpOnly + Secure on prod', async ({ page }) => {
+  test('supabase auth-token cookies are HttpOnly with safe SameSite', async ({ page }) => {
     await page.goto('/a')
     const cookies = await page.context().cookies()
-    const authCookies = cookies.filter((c) => c.name.startsWith('sb-'))
-    expect(authCookies.length).toBeGreaterThan(0)
-    for (const c of authCookies) {
+    // Only assert on the JWT-bearing cookies. Code verifier cookies for OAuth
+    // PKCE flow may legitimately be non-HttpOnly so the browser can read them.
+    const tokenCookies = cookies.filter(
+      (c) => c.name.startsWith('sb-') && c.name.includes('auth-token') && !c.name.includes('verifier'),
+    )
+    expect(tokenCookies.length).toBeGreaterThan(0)
+    for (const c of tokenCookies) {
       expect(c.httpOnly, `${c.name} must be HttpOnly`).toBe(true)
-      // sameSite must be one of Lax/Strict (not None)
       expect(['Lax', 'Strict']).toContain(c.sameSite)
     }
   })
@@ -124,16 +127,16 @@ test.describe('Sensitive data exposure', () => {
 })
 
 test.describe('Open redirect protection', () => {
-  test('login ?next= with external URL is not respected', async ({ browser, baseURL }) => {
+  test('successful login redirects to role portal, not external URL', async ({ browser, baseURL }) => {
     const ctx = await browser.newContext({ baseURL, storageState: { cookies: [], origins: [] } })
     const page = await ctx.newPage()
+    // Even if attacker controls ?next=, login action redirects to role-derived portal
     await page.goto('/login?next=https://evil.example.com/x')
     await expect(page.getByRole('heading', { name: 'TUTO' })).toBeVisible()
-    // After typing wrong creds and submitting, we should NOT navigate to evil.example
-    await page.getByLabel('Email').fill('me@camilorico.com')
-    await page.getByLabel('Password').fill('wrong-password-xx')
+    await page.getByLabel('Email').fill('e2e-student@tuto.test')
+    await page.getByLabel('Password').fill('TestE2E2026!')
     await page.getByRole('button', { name: /ingresar/i }).click()
-    await page.waitForLoadState('networkidle')
+    await page.waitForURL(/\/s/, { timeout: 15_000 })
     expect(page.url()).not.toContain('evil.example.com')
     await ctx.close()
   })

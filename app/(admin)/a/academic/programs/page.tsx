@@ -3,6 +3,7 @@ import { requirePermission } from '@/lib/auth/permissions'
 import { getPrograms } from '@/lib/db/academic'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { ProgramRowActions } from './row-actions'
 
 export default async function ProgramsPage() {
   const session = await requireSession()
@@ -28,8 +29,8 @@ export default async function ProgramsPage() {
       <div className="grid gap-3">
         {programs.map((program) => (
           <Card key={program.id} className="glass-subtle">
-            <CardContent className="flex items-center justify-between py-4">
-              <div>
+            <CardContent className="flex items-center justify-between gap-4 py-4">
+              <div className="min-w-0">
                 <p className="font-medium">{program.name}</p>
                 <p className="text-sm text-muted-foreground">
                   {program.code} · {program.modality} · {program.duration_periods} periodos
@@ -38,6 +39,10 @@ export default async function ProgramsPage() {
                   <p className="mt-1 text-sm text-muted-foreground">{program.description}</p>
                 )}
               </div>
+              <ProgramRowActions
+                programId={program.id}
+                canWrite={session.permissions.has('academic:write')}
+              />
             </CardContent>
           </Card>
         ))}

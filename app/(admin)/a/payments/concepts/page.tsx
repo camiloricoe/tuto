@@ -2,8 +2,8 @@ import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { getPaymentConcepts } from '@/lib/db/payments'
 import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import AddConceptForm from './add-form'
+import { ConceptRowActions } from './row-actions'
 
 export default async function PaymentConceptsPage() {
   const session = await requireSession()
@@ -33,17 +33,20 @@ export default async function PaymentConceptsPage() {
       <div className="grid gap-3">
         {concepts.map((concept) => (
           <Card key={concept.id} className="glass-subtle">
-            <CardContent className="flex items-center justify-between py-4">
-              <div>
+            <CardContent className="flex items-center justify-between gap-4 py-4">
+              <div className="min-w-0 flex-1">
                 <p className="font-medium">{concept.name}</p>
                 <p className="text-sm text-muted-foreground">
                   {concept.code}
                   {concept.recurring ? ' · Recurrente' : ''}
                 </p>
               </div>
-              {concept.default_amount != null && (
-                <p className="font-semibold">${concept.default_amount.toFixed(2)}</p>
-              )}
+              <div className="flex items-center gap-3">
+                {concept.default_amount != null && (
+                  <p className="font-semibold whitespace-nowrap">${concept.default_amount.toFixed(2)}</p>
+                )}
+                <ConceptRowActions conceptId={concept.id} canWrite={canWrite} />
+              </div>
             </CardContent>
           </Card>
         ))}
