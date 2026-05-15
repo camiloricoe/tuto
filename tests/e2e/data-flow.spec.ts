@@ -3,6 +3,24 @@ import { test, expect } from '@playwright/test'
 // Verifies seeded data is visible across all admin list pages.
 // Seed lives in INDECAP tenant via SQL bootstrap.
 
+const INDECAP_ID = '0dfeb630-870c-4bf2-8463-fbcefd9d1ab7'
+
+test.beforeEach(async ({ context, baseURL }) => {
+  // Ensure super_admin is on INDECAP tenant before each test
+  const url = new URL(baseURL ?? 'https://tuto-flame.vercel.app')
+  await context.addCookies([
+    {
+      name: 'tuto-active-tenant',
+      value: INDECAP_ID,
+      domain: url.hostname,
+      path: '/',
+      httpOnly: false,
+      secure: url.protocol === 'https:',
+      sameSite: 'Lax',
+    },
+  ])
+})
+
 test('admin programs list shows seeded program', async ({ page }) => {
   await page.goto('/a/academic/programs')
   await expect(page.getByText('E2E Programa Demo')).toBeVisible({ timeout: 10_000 })

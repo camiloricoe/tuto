@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-15T03:59:31.479Z",
+  "updatedAt": "2026-05-15T04:36:22.886Z",
   "missions": [
     {
       "id": "session:6f50eb01-9363-4d56-be31-189e50f5c9e2:none",
@@ -207,7 +207,7 @@
       "name": "none",
       "objective": "Session mission",
       "createdAt": "2026-05-15T03:33:22.963Z",
-      "updatedAt": "2026-05-15T03:59:31.479Z",
+      "updatedAt": "2026-05-15T04:36:22.886Z",
       "status": "done",
       "workerCount": 2,
       "taskCounts": {
@@ -227,7 +227,7 @@
           "currentStep": null,
           "latestUpdate": "completed",
           "completedSummary": null,
-          "updatedAt": "2026-05-15T03:59:31.479Z"
+          "updatedAt": "2026-05-15T04:36:22.886Z"
         },
         {
           "name": "statusline-setup:ac88871",
@@ -288,6 +288,30 @@
           "agent": "statusline-setup:a768c3f",
           "detail": "completed",
           "sourceKey": "session-stop:acf7c67bdc33ec6fb"
+        },
+        {
+          "id": "session-stop:a25ba1948ff9a0ba4:2026-05-15T04:18:51.102Z",
+          "at": "2026-05-15T04:18:51.102Z",
+          "kind": "completion",
+          "agent": "statusline-setup:a768c3f",
+          "detail": "completed",
+          "sourceKey": "session-stop:a25ba1948ff9a0ba4"
+        },
+        {
+          "id": "session-stop:a98c3f2e900b73db4:2026-05-15T04:28:48.246Z",
+          "at": "2026-05-15T04:28:48.246Z",
+          "kind": "completion",
+          "agent": "statusline-setup:a768c3f",
+          "detail": "completed",
+          "sourceKey": "session-stop:a98c3f2e900b73db4"
+        },
+        {
+          "id": "session-stop:ae4545d372bca1750:2026-05-15T04:36:22.886Z",
+          "at": "2026-05-15T04:36:22.886Z",
+          "kind": "completion",
+          "agent": "statusline-setup:a768c3f",
+          "detail": "completed",
+          "sourceKey": "session-stop:ae4545d372bca1750"
         }
       ]
     }

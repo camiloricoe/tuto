@@ -2,6 +2,27 @@ import { test, expect } from '@playwright/test'
 
 test.describe.configure({ mode: 'serial' })
 
+const INDECAP_ID = '0dfeb630-870c-4bf2-8463-fbcefd9d1ab7'
+
+test.afterAll(async ({ browser }) => {
+  // Reset active tenant cookie to INDECAP so subsequent specs start clean
+  const ctx = await browser.newContext({ storageState: 'tests/e2e/.auth/super-admin.json' })
+  const page = await ctx.newPage()
+  const url = new URL(page.url() || 'https://tuto-flame.vercel.app')
+  await ctx.addCookies([
+    {
+      name: 'tuto-active-tenant',
+      value: INDECAP_ID,
+      domain: url.hostname || 'tuto-flame.vercel.app',
+      path: '/',
+      httpOnly: false,
+      secure: true,
+      sameSite: 'Lax',
+    },
+  ])
+  await ctx.close()
+})
+
 test('switcher lists multiple tenants for super admin', async ({ page }) => {
   await page.goto('/a')
   await page.locator('header').getByRole('button').filter({ hasText: /indecap|seleccionar/i }).first().click()
