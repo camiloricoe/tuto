@@ -147,6 +147,75 @@ export async function createGradingSchemeAction(_prevState: unknown, formData: F
   return { success: true }
 }
 
+export async function deletePeriodAction(periodId: string) {
+  const session = await requireSession()
+  await requirePermission('academic:write')
+  if (!session.activeTenantId) return { error: 'No hay tenant activo' }
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from('academic_periods')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', periodId)
+    .eq('tenant_id', session.activeTenantId)
+  if (error) return { error: 'Error al eliminar el periodo' }
+  await logActivity({
+    tenantId: session.activeTenantId,
+    actorUserId: session.userId,
+    actionCode: 'period.deleted',
+    resourceType: 'academic_period',
+    resourceId: periodId,
+    summary: `Periodo eliminado`,
+  })
+  revalidatePath('/a/settings')
+  return { success: true }
+}
+
+export async function deleteGradingSchemeAction(schemeId: string) {
+  const session = await requireSession()
+  await requirePermission('academic:write')
+  if (!session.activeTenantId) return { error: 'No hay tenant activo' }
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from('grading_schemes')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', schemeId)
+    .eq('tenant_id', session.activeTenantId)
+  if (error) return { error: 'Error al eliminar el esquema' }
+  await logActivity({
+    tenantId: session.activeTenantId,
+    actorUserId: session.userId,
+    actionCode: 'grading_scheme.deleted',
+    resourceType: 'grading_scheme',
+    resourceId: schemeId,
+    summary: `Esquema eliminado`,
+  })
+  revalidatePath('/a/settings')
+  return { success: true }
+}
+
+export async function deleteSubjectAction(subjectId: string) {
+  const session = await requireSession()
+  await requirePermission('academic:write')
+  if (!session.activeTenantId) return { error: 'No hay tenant activo' }
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from('subjects')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', subjectId)
+    .eq('tenant_id', session.activeTenantId)
+  if (error) return { error: 'Error al eliminar la materia' }
+  await logActivity({
+    tenantId: session.activeTenantId,
+    actorUserId: session.userId,
+    actionCode: 'subject.deleted',
+    resourceType: 'subject',
+    resourceId: subjectId,
+    summary: `Materia eliminada`,
+  })
+  revalidatePath('/a/settings')
+  return { success: true }
+}
+
 export async function createSubjectAction(_prevState: unknown, formData: FormData) {
   const session = await requireSession()
   await requirePermission('academic:write')

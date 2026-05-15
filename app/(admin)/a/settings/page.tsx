@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PeriodForm } from './period-form'
 import { GradingSchemeForm } from './grading-scheme-form'
 import { SubjectForm } from './subject-form'
+import { PeriodRowActions, SchemeRowActions, SubjectRowActions } from './row-actions'
 
 export default async function SettingsPage() {
   const session = await requireSession()
@@ -48,6 +49,7 @@ export default async function SettingsPage() {
   const schemes = schemesRes.data ?? []
   const subjects = subjectsRes.data ?? []
   const programs = programsRes.data ?? []
+  const canWrite = session.permissions.has('academic:write')
 
   const KIND_LABELS: Record<string, string> = {
     bimester: 'Bimestre',
@@ -67,8 +69,8 @@ export default async function SettingsPage() {
           <div className="space-y-3">
             {periods.map((period) => (
               <Card key={period.id} className="glass-subtle">
-                <CardContent className="flex items-center justify-between py-4">
-                  <div>
+                <CardContent className="flex items-center justify-between gap-3 py-4">
+                  <div className="min-w-0">
                     <p className="font-medium">{period.name}</p>
                     <p className="text-sm text-muted-foreground">
                       {KIND_LABELS[period.kind] ?? period.kind} · {period.code}
@@ -77,11 +79,14 @@ export default async function SettingsPage() {
                       {period.starts_on} — {period.ends_on}
                     </p>
                   </div>
-                  {period.active && (
-                    <span className="rounded-full bg-green-500/20 px-2 py-0.5 text-xs text-green-600">
-                      Activo
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {period.active && (
+                      <span className="rounded-full bg-green-500/20 px-2 py-0.5 text-xs text-green-600">
+                        Activo
+                      </span>
+                    )}
+                    <PeriodRowActions id={period.id} canWrite={canWrite} />
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -107,13 +112,16 @@ export default async function SettingsPage() {
           <div className="space-y-3">
             {schemes.map((scheme) => (
               <Card key={scheme.id} className="glass-subtle">
-                <CardContent className="py-4">
-                  <p className="font-medium">{scheme.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Escala: {scheme.scale_min} — {scheme.scale_max} · Aprobacion:{' '}
-                    {scheme.passing_grade}
-                    {scheme.uses_letters && ' · Usa letras'}
-                  </p>
+                <CardContent className="flex items-center justify-between gap-3 py-4">
+                  <div className="min-w-0">
+                    <p className="font-medium">{scheme.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Escala: {scheme.scale_min} — {scheme.scale_max} · Aprobacion:{' '}
+                      {scheme.passing_grade}
+                      {scheme.uses_letters && ' · Usa letras'}
+                    </p>
+                  </div>
+                  <SchemeRowActions id={scheme.id} canWrite={canWrite} />
                 </CardContent>
               </Card>
             ))}
@@ -141,13 +149,16 @@ export default async function SettingsPage() {
               const program = subject.academic_programs as unknown as { name: string } | null
               return (
                 <Card key={subject.id} className="glass-subtle">
-                  <CardContent className="py-4">
-                    <p className="font-medium">{subject.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {subject.code}
-                      {subject.credits ? ` · ${subject.credits} creditos` : ''}
-                      {program ? ` · ${program.name}` : ''}
-                    </p>
+                  <CardContent className="flex items-center justify-between gap-3 py-4">
+                    <div className="min-w-0">
+                      <p className="font-medium">{subject.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {subject.code}
+                        {subject.credits ? ` · ${subject.credits} creditos` : ''}
+                        {program ? ` · ${program.name}` : ''}
+                      </p>
+                    </div>
+                    <SubjectRowActions id={subject.id} canWrite={canWrite} />
                   </CardContent>
                 </Card>
               )

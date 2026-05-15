@@ -11,11 +11,12 @@ const ROLES = [
 ] as const
 
 async function loginAndSave(page: Page, email: string, password: string, expectedPortal: string, file: string) {
-  await page.goto('/login')
+  // Warm up the cold lambda first
+  await page.goto('/login', { waitUntil: 'domcontentloaded', timeout: 30_000 })
   await page.getByLabel('Email').fill(email)
   await page.getByLabel('Password').fill(password)
   await page.getByRole('button', { name: /ingresar/i }).click()
-  await page.waitForURL((url) => url.pathname.startsWith(expectedPortal), { timeout: 15_000 })
+  await page.waitForURL((url) => url.pathname.startsWith(expectedPortal), { timeout: 30_000 })
   await expect(page.locator('body')).toBeVisible()
   await page.context().storageState({ path: file })
 }
