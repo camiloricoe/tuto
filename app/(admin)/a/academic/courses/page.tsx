@@ -3,6 +3,7 @@ import { requirePermission } from '@/lib/auth/permissions'
 import { getCourses } from '@/lib/db/academic'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { CourseRowActions } from './row-actions'
 
 export default async function CoursesPage() {
   const session = await requireSession()
@@ -31,14 +32,18 @@ export default async function CoursesPage() {
           const period = course.academic_periods as unknown as { name: string; code: string } | null
           return (
             <Card key={course.id} className="glass-subtle">
-              <CardContent className="flex items-center justify-between py-4">
-                <div>
+              <CardContent className="flex items-center justify-between gap-3 py-4">
+                <div className="min-w-0">
                   <p className="font-medium">{subject?.name ?? 'Sin materia'}</p>
                   <p className="text-sm text-muted-foreground">
                     {subject?.code} · {period?.name} · Seccion: {course.section_code || 'A'}
                   </p>
                   <p className="text-xs text-muted-foreground capitalize">Estado: {course.status}</p>
                 </div>
+                <CourseRowActions
+                  courseId={course.id}
+                  canWrite={session.permissions.has('academic:write')}
+                />
               </CardContent>
             </Card>
           )
