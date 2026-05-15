@@ -5,7 +5,7 @@ export const FEEDBACK_STATUSES = ['open', 'triaged', 'in_progress', 'resolved', 
 export const FEEDBACK_PRIORITIES = ['low', 'medium', 'high', 'critical'] as const
 
 export const createFeedbackSchema = z.object({
-  type: z.enum(FEEDBACK_TYPES),
+  type: z.enum([...FEEDBACK_TYPES]),
   title: z.string().min(3, 'Titulo muy corto').max(200),
   description: z.string().min(5, 'Descripcion muy corta').max(5000),
   targetUrl: z.string().max(500).optional(),
@@ -18,8 +18,8 @@ export const createFeedbackSchema = z.object({
 
 export const updateFeedbackStatusSchema = z.object({
   ticketId: z.string().uuid(),
-  status: z.enum(FEEDBACK_STATUSES).optional(),
-  priority: z.enum(FEEDBACK_PRIORITIES).optional(),
+  status: z.enum([...FEEDBACK_STATUSES]).optional(),
+  priority: z.enum([...FEEDBACK_PRIORITIES]).optional(),
   assignedTo: z.string().uuid().nullable().optional(),
 })
 
