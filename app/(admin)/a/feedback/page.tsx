@@ -109,36 +109,33 @@ export default async function FeedbackListPage({ searchParams }: { searchParams:
           enriched.map((t) => {
             const Icon = TYPE_ICON[t.type as keyof typeof TYPE_ICON] ?? Bug
             return (
-              <Card key={t.id} className="glass-subtle">
-                <CardContent className="flex items-center justify-between gap-4 py-4">
-                  <div className="flex items-start gap-3 min-w-0 flex-1">
-                    <Icon className="h-5 w-5 mt-1 shrink-0 text-muted-foreground" />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${STATUS_COLOR[t.status] ?? ''}`}>
-                          {t.status}
-                        </span>
-                        <span className={`text-[10px] uppercase font-semibold ${PRIORITY_COLOR[t.priority] ?? ''}`}>
-                          {t.priority}
-                        </span>
-                        <p className="font-medium truncate">{t.title}</p>
+              <Link key={t.id} href={`/a/feedback/${t.id}`} className="block">
+                <Card className="glass-subtle hover:bg-accent/30 transition-colors">
+                  <CardContent className="flex items-center justify-between gap-4 py-4">
+                    <div className="flex items-start gap-3 min-w-0 flex-1">
+                      <Icon className="h-5 w-5 mt-1 shrink-0 text-muted-foreground" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${STATUS_COLOR[t.status] ?? ''}`}>
+                            {t.status}
+                          </span>
+                          <span className={`text-[10px] uppercase font-semibold ${PRIORITY_COLOR[t.priority] ?? ''}`}>
+                            {t.priority}
+                          </span>
+                          <p className="font-medium truncate">{t.title}</p>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {t.reporter_name ?? 'Anonimo'}
+                          {t.tenant_name && ` · ${t.tenant_name}`}
+                          {' · '}
+                          <FormattedTime value={t.created_at} variant="relative" />
+                        </p>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {t.reporter_name ?? 'Anonimo'}
-                        {t.tenant_name && ` · ${t.tenant_name}`}
-                        {' · '}
-                        <FormattedTime value={t.created_at} variant="relative" />
-                      </p>
                     </div>
-                  </div>
-                  <Link
-                    href={`/a/feedback/${t.id}`}
-                    className="flex items-center gap-1 text-sm text-primary hover:underline shrink-0"
-                  >
-                    Ver <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </CardContent>
-              </Card>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                  </CardContent>
+                </Card>
+              </Link>
             )
           })
         )}

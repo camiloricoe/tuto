@@ -74,7 +74,7 @@ test('both tickets appear in admin list', async ({ page }) => {
 
 test('admin changes status to triaged + priority high', async ({ page }) => {
   await page.goto('/a/feedback')
-  await page.getByText(TICKET_TITLE_PICKER).first().click()
+  await page.getByRole('link').filter({ hasText: TICKET_TITLE_PICKER }).first().click()
   await page.waitForURL(/\/a\/feedback\/[0-9a-f-]+/)
   await page.locator('select[name="status"]').selectOption('triaged')
   await page.locator('select[name="priority"]').selectOption('high')

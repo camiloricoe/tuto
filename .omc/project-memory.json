@@ -1,0 +1,501 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1778801863475,
+  "projectRoot": "/Users/cami/Documents/Code/Tuto",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "next",
+        "version": "16.2.4",
+        "category": "fullstack"
+      },
+      {
+        "name": "react",
+        "version": "19.2.5",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "19.2.5",
+        "category": "frontend"
+      },
+      {
+        "name": "@playwright/test",
+        "version": "1.59.1",
+        "category": "testing"
+      },
+      {
+        "name": "playwright",
+        "version": "1.59.1",
+        "category": "testing"
+      },
+      {
+        "name": "vitest",
+        "version": "4.1.5",
+        "category": "testing"
+      }
+    ],
+    "packageManager": "pnpm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "pnpm build",
+    "testCommand": "pnpm test",
+    "lintCommand": "pnpm lint",
+    "devCommand": "pnpm dev",
+    "scripts": {
+      "dev": "next dev",
+      "build": "next build",
+      "start": "next start",
+      "lint": "next lint",
+      "typecheck": "tsc --noEmit",
+      "test": "vitest run",
+      "test:watch": "vitest",
+      "test:coverage": "vitest run --coverage",
+      "test:e2e": "playwright test",
+      "db:reset": "supabase db reset",
+      "db:new-migration": "supabase migration new"
+    }
+  },
+  "conventions": {
+    "namingStyle": "camelCase",
+    "importStyle": "ES modules",
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "app",
+      "components",
+      "lib",
+      "scripts",
+      "tests"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "app": {
+      "path": "app",
+      "purpose": "Application code",
+      "fileCount": 4,
+      "lastAccessed": 1778801863460,
+      "keyFiles": [
+        "global-error.tsx",
+        "globals.css",
+        "layout.tsx",
+        "page.tsx"
+      ]
+    },
+    "components": {
+      "path": "components",
+      "purpose": "UI components",
+      "fileCount": 0,
+      "lastAccessed": 1778801863460,
+      "keyFiles": []
+    },
+    "instituto-v2": {
+      "path": "instituto-v2",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1778801863460,
+      "keyFiles": [
+        "CLAUDE.md",
+        "README.md"
+      ]
+    },
+    "lib": {
+      "path": "lib",
+      "purpose": "Library code",
+      "fileCount": 2,
+      "lastAccessed": 1778801863461,
+      "keyFiles": [
+        "env.ts",
+        "utils.ts"
+      ]
+    },
+    "messages": {
+      "path": "messages",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1778801863469,
+      "keyFiles": [
+        "es.json"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 1,
+      "lastAccessed": 1778801863469,
+      "keyFiles": [
+        "seed-dev.ts"
+      ]
+    },
+    "supabase": {
+      "path": "supabase",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1778801863469,
+      "keyFiles": [
+        "config.toml",
+        "seed.sql"
+      ]
+    },
+    "tests": {
+      "path": "tests",
+      "purpose": "Test files",
+      "fileCount": 1,
+      "lastAccessed": 1778801863469,
+      "keyFiles": [
+        "setup.ts"
+      ]
+    },
+    "app/api": {
+      "path": "app/api",
+      "purpose": "API routes",
+      "fileCount": 0,
+      "lastAccessed": 1778801863469,
+      "keyFiles": []
+    },
+    "instituto-v2/docs": {
+      "path": "instituto-v2/docs",
+      "purpose": "Documentation",
+      "fileCount": 1,
+      "lastAccessed": 1778801863470,
+      "keyFiles": []
+    },
+    "supabase/migrations": {
+      "path": "supabase/migrations",
+      "purpose": "Database migrations",
+      "fileCount": 1,
+      "lastAccessed": 1778801863470,
+      "keyFiles": [
+        "20260421000000_initial_schema.sql"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "app/(admin)/layout.tsx",
+      "accessCount": 25,
+      "lastAccessed": 1778813642130,
+      "type": "file"
+    },
+    {
+      "path": "app/(student)/layout.tsx",
+      "accessCount": 20,
+      "lastAccessed": 1778813644173,
+      "type": "file"
+    },
+    {
+      "path": "app/(teacher)/layout.tsx",
+      "accessCount": 19,
+      "lastAccessed": 1778813646084,
+      "type": "file"
+    },
+    {
+      "path": "app/(student)/s/page.tsx",
+      "accessCount": 17,
+      "lastAccessed": 1777923818964,
+      "type": "file"
+    },
+    {
+      "path": "app/(admin)/a/page.tsx",
+      "accessCount": 11,
+      "lastAccessed": 1778810655118,
+      "type": "file"
+    },
+    {
+      "path": "lib/supabase/database.types.ts",
+      "accessCount": 9,
+      "lastAccessed": 1777923523000,
+      "type": "file"
+    },
+    {
+      "path": "app/(teacher)/t/page.tsx",
+      "accessCount": 9,
+      "lastAccessed": 1777923819199,
+      "type": "file"
+    },
+    {
+      "path": ".env.local",
+      "accessCount": 9,
+      "lastAccessed": 1778801994678,
+      "type": "file"
+    },
+    {
+      "path": "package.json",
+      "accessCount": 6,
+      "lastAccessed": 1777921411853,
+      "type": "file"
+    },
+    {
+      "path": "lib/supabase/admin.ts",
+      "accessCount": 6,
+      "lastAccessed": 1778804996460,
+      "type": "file"
+    },
+    {
+      "path": "middleware.ts",
+      "accessCount": 6,
+      "lastAccessed": 1778805020124,
+      "type": "file"
+    },
+    {
+      "path": "TECH_DEBT.md",
+      "accessCount": 5,
+      "lastAccessed": 1778801994838,
+      "type": "file"
+    },
+    {
+      "path": "next.config.ts",
+      "accessCount": 5,
+      "lastAccessed": 1778805026764,
+      "type": "file"
+    },
+    {
+      "path": "lib/supabase/server.ts",
+      "accessCount": 4,
+      "lastAccessed": 1777923127648,
+      "type": "file"
+    },
+    {
+      "path": "supabase/seed.sql",
+      "accessCount": 4,
+      "lastAccessed": 1777923321861,
+      "type": "file"
+    },
+    {
+      "path": "app/globals.css",
+      "accessCount": 4,
+      "lastAccessed": 1778810446230,
+      "type": "file"
+    },
+    {
+      "path": "app/layout.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1778810480373,
+      "type": "file"
+    },
+    {
+      "path": "playwright.config.ts",
+      "accessCount": 4,
+      "lastAccessed": 1778814177165,
+      "type": "file"
+    },
+    {
+      "path": "eslint.config.mjs",
+      "accessCount": 3,
+      "lastAccessed": 1776827722279,
+      "type": "file"
+    },
+    {
+      "path": "components/ui/form.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1776827767697,
+      "type": "directory"
+    },
+    {
+      "path": "lib/supabase/client.ts",
+      "accessCount": 3,
+      "lastAccessed": 1777133537143,
+      "type": "file"
+    },
+    {
+      "path": "instituto-v2/docs/specs/01-data-model.md",
+      "accessCount": 3,
+      "lastAccessed": 1777923063367,
+      "type": "file"
+    },
+    {
+      "path": "instituto-v2/docs/specs/09-security-and-rls.md",
+      "accessCount": 3,
+      "lastAccessed": 1777923064325,
+      "type": "file"
+    },
+    {
+      "path": ".env.example",
+      "accessCount": 3,
+      "lastAccessed": 1778801992042,
+      "type": "file"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 3,
+      "lastAccessed": 1778801996288,
+      "type": "file"
+    },
+    {
+      "path": "app/(auth)/login/page.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1778811445486,
+      "type": "file"
+    },
+    {
+      "path": "components/ui/sonner.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776827633665,
+      "type": "file"
+    },
+    {
+      "path": "vitest.config.ts",
+      "accessCount": 2,
+      "lastAccessed": 1777135209693,
+      "type": "file"
+    },
+    {
+      "path": "instituto-v2/docs/specs/06-audit-and-logs.md",
+      "accessCount": 2,
+      "lastAccessed": 1777923064763,
+      "type": "file"
+    },
+    {
+      "path": "scripts/seed-dev.ts",
+      "accessCount": 2,
+      "lastAccessed": 1778802725638,
+      "type": "file"
+    },
+    {
+      "path": "sentry.server.config.ts",
+      "accessCount": 2,
+      "lastAccessed": 1778805027877,
+      "type": "file"
+    },
+    {
+      "path": "sentry.client.config.ts",
+      "accessCount": 2,
+      "lastAccessed": 1778805028000,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 1,
+      "lastAccessed": 1776826427003,
+      "type": "directory"
+    },
+    {
+      "path": "tsconfig.json",
+      "accessCount": 1,
+      "lastAccessed": 1776827403590,
+      "type": "file"
+    },
+    {
+      "path": "postcss.config.mjs",
+      "accessCount": 1,
+      "lastAccessed": 1776827407204,
+      "type": "file"
+    },
+    {
+      "path": ".prettierrc",
+      "accessCount": 1,
+      "lastAccessed": 1776827408173,
+      "type": "file"
+    },
+    {
+      "path": "app/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776827446292,
+      "type": "file"
+    },
+    {
+      "path": "app/(student)/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776827450825,
+      "type": "file"
+    },
+    {
+      "path": "app/(teacher)/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776827453180,
+      "type": "file"
+    },
+    {
+      "path": "app/(admin)/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776827455218,
+      "type": "file"
+    },
+    {
+      "path": "lib/env.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776827463701,
+      "type": "file"
+    },
+    {
+      "path": "lib/utils.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776827464256,
+      "type": "file"
+    },
+    {
+      "path": "messages/es.json",
+      "accessCount": 1,
+      "lastAccessed": 1776827477531,
+      "type": "file"
+    },
+    {
+      "path": "tests/setup.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776827491454,
+      "type": "file"
+    },
+    {
+      "path": "sentry.edge.config.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776827500019,
+      "type": "file"
+    },
+    {
+      "path": "app/global-error.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776827503332,
+      "type": "file"
+    },
+    {
+      "path": "components.json",
+      "accessCount": 1,
+      "lastAccessed": 1776827591274,
+      "type": "file"
+    },
+    {
+      "path": "tests/unit/utils.test.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776827783989,
+      "type": "file"
+    },
+    {
+      "path": "instituto-v2/docs/phases/phase-1-auth-rbac.md",
+      "accessCount": 1,
+      "lastAccessed": 1777134238249,
+      "type": "file"
+    },
+    {
+      "path": "instituto-v2/docs/specs/02-auth-and-rbac.md",
+      "accessCount": 1,
+      "lastAccessed": 1777134238792,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}
