@@ -1,5 +1,5 @@
 import { requireSession } from '@/lib/auth/session'
-import { requirePermission } from '@/lib/auth/permissions'
+import { requireSuperAdmin } from '@/lib/auth/permissions'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Card, CardContent } from '@/components/ui/card'
 import { FormattedTime } from '@/components/shared/formatted-time'
@@ -10,7 +10,7 @@ type SearchParams = Promise<{ q?: string }>
 
 export default async function TenantsPage({ searchParams }: { searchParams: SearchParams }) {
   await requireSession()
-  await requirePermission('tenants:read')
+  await requireSuperAdmin()
 
   const params = await searchParams
   const q = params.q ?? ''

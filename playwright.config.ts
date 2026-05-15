@@ -9,7 +9,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: 1,
-  reporter: [['list'], ['html', { open: 'never' }]],
+  reporter: [['list'], ['html', { open: 'never' }], ['json', { outputFile: 'playwright-report/results.json' }]],
   use: {
     baseURL,
     trace: 'retain-on-failure',
@@ -20,7 +20,7 @@ export default defineConfig({
     { name: 'setup', testMatch: /.*\.setup\.ts/ },
     {
       name: 'super-admin',
-      testMatch: /smoke\.spec\.ts|admin-chained\.spec\.ts|feedback\.spec\.ts|tenant-isolation\.spec\.ts|audit-verification\.spec\.ts|crud-validation\.spec\.ts|integrations\.spec\.ts|chaos\.spec\.ts/,
+      testMatch: /smoke\.spec\.ts|admin-chained\.spec\.ts|feedback\.spec\.ts|tenant-isolation\.spec\.ts|audit-verification\.spec\.ts|crud-validation\.spec\.ts|integrations\.spec\.ts|chaos\.spec\.ts|security\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], storageState: 'tests/e2e/.auth/super-admin.json' },
       dependencies: ['setup'],
     },

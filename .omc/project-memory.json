@@ -198,8 +198,8 @@
   "hotPaths": [
     {
       "path": "app/(admin)/layout.tsx",
-      "accessCount": 25,
-      "lastAccessed": 1778813642130,
+      "accessCount": 27,
+      "lastAccessed": 1778818024668,
       "type": "file"
     },
     {
@@ -227,6 +227,12 @@
       "type": "file"
     },
     {
+      "path": "playwright.config.ts",
+      "accessCount": 10,
+      "lastAccessed": 1778818183934,
+      "type": "file"
+    },
+    {
       "path": "lib/supabase/database.types.ts",
       "accessCount": 9,
       "lastAccessed": 1777923523000,
@@ -245,15 +251,9 @@
       "type": "file"
     },
     {
-      "path": "playwright.config.ts",
-      "accessCount": 8,
-      "lastAccessed": 1778816479271,
-      "type": "file"
-    },
-    {
       "path": "package.json",
-      "accessCount": 6,
-      "lastAccessed": 1777921411853,
+      "accessCount": 9,
+      "lastAccessed": 1778818075441,
       "type": "file"
     },
     {
@@ -278,6 +278,12 @@
       "path": "next.config.ts",
       "accessCount": 5,
       "lastAccessed": 1778805026764,
+      "type": "file"
+    },
+    {
+      "path": ".env.example",
+      "accessCount": 5,
+      "lastAccessed": 1778818115887,
       "type": "file"
     },
     {
@@ -332,12 +338,6 @@
       "path": "instituto-v2/docs/specs/09-security-and-rls.md",
       "accessCount": 3,
       "lastAccessed": 1777923064325,
-      "type": "file"
-    },
-    {
-      "path": ".env.example",
-      "accessCount": 3,
-      "lastAccessed": 1778801992042,
       "type": "file"
     },
     {

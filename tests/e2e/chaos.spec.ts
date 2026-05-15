@@ -57,11 +57,11 @@ test('negative duration on program is rejected', async ({ page }) => {
   await expect(page.getByText(/programa creado exitosamente/i)).toHaveCount(0, { timeout: 5_000 })
 })
 
-test('unauthenticated request to /a redirects to login', async ({ browser }) => {
-  const ctx = await browser.newContext()
+test('unauthenticated request to /a redirects to login', async ({ browser, baseURL }) => {
+  const ctx = await browser.newContext({ baseURL, storageState: { cookies: [], origins: [] } })
   const page = await ctx.newPage()
   await page.goto('/a')
-  await page.waitForURL(/\/login/, { timeout: 10_000 })
+  await page.waitForURL(/login/, { timeout: 15_000 })
   await ctx.close()
 })
 

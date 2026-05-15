@@ -24,3 +24,6 @@
 {"t":0,"agent":"a62fbee","agent_type":"unknown","event":"agent_stop","success":true}
 {"t":0,"agent":"ac88871","agent_type":"statusline-setup","event":"agent_start","parent_mode":"none"}
 {"t":0,"agent":"ac88871","agent_type":"statusline-setup","event":"agent_stop","success":true,"duration_ms":30542}
+{"t":0,"agent":"aff5a12","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"acf7c67","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"system","event":"keyword_detected","keyword":"ultrathink"}

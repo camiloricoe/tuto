@@ -4,14 +4,14 @@ test.describe.configure({ mode: 'serial' })
 
 test('switcher lists multiple tenants for super admin', async ({ page }) => {
   await page.goto('/a')
-  await page.getByRole('button', { name: /indecap|seleccionar tenant/i }).first().click()
-  await expect(page.getByText('INDECAP')).toBeVisible()
-  await expect(page.getByText('E2E Iso Tenant')).toBeVisible()
+  await page.locator('header').getByRole('button').filter({ hasText: /indecap|seleccionar/i }).first().click()
+  await expect(page.getByRole('menuitem').filter({ hasText: 'INDECAP' })).toBeVisible()
+  await expect(page.getByRole('menuitem').filter({ hasText: 'E2E Iso Tenant' })).toBeVisible()
 })
 
 test('switching to iso tenant changes active tenant pill', async ({ page }) => {
   await page.goto('/a')
-  await page.getByRole('button', { name: /indecap|seleccionar tenant/i }).first().click()
+  await page.locator('header').getByRole('button').filter({ hasText: /indecap|seleccionar/i }).first().click()
   await page.getByRole('menuitem').filter({ hasText: 'E2E Iso Tenant' }).click()
   await page.waitForLoadState('networkidle')
   await expect(page.locator('header').getByRole('button', { name: /e2e iso tenant/i })).toBeVisible({ timeout: 10_000 })

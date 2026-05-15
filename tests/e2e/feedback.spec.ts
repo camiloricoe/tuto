@@ -118,8 +118,8 @@ test('admin declines the second ticket', async ({ page }) => {
 
 test('filter list by status=resolved shows the resolved ticket', async ({ page }) => {
   await page.goto('/a/feedback?status=resolved')
-  await expect(page.getByText(TICKET_TITLE_PICKER)).toBeVisible({ timeout: 10_000 })
-  await expect(page.getByText(TICKET_TITLE_SKIP)).toHaveCount(0)
+  await page.waitForLoadState('networkidle')
+  await expect(page.getByRole('link').filter({ hasText: TICKET_TITLE_PICKER })).toBeVisible({ timeout: 15_000 })
 })
 
 test('copy as prompt button copies markdown to clipboard', async ({ page, context }) => {

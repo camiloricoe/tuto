@@ -10,3 +10,8 @@ export async function requirePermission(permission: string): Promise<void> {
   const hasPermission = await can(permission)
   if (!hasPermission) throw new ForbiddenError(`Permiso requerido: ${permission}`)
 }
+
+export async function requireSuperAdmin(): Promise<void> {
+  const session = await requireSession()
+  if (!session.isSuperAdmin) throw new ForbiddenError('Solo super_admin')
+}

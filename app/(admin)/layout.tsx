@@ -42,6 +42,12 @@ const tenantsNavItem: NavItem = {
   icon: 'tenants',
 }
 
+const healthNavItem: NavItem = {
+  label: 'Salud',
+  href: '/a/health',
+  icon: 'health',
+}
+
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession()
 
@@ -54,7 +60,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const unreadCount = await getUnreadCountAction()
 
   const adminNavItems: NavItem[] = session.isSuperAdmin
-    ? [tenantsNavItem, ...baseAdminNavItems]
+    ? [tenantsNavItem, ...baseAdminNavItems, healthNavItem]
     : baseAdminNavItems
 
   return (

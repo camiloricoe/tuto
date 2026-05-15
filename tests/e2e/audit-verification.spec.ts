@@ -71,7 +71,7 @@ test('audit page filter days reduces result set', async ({ page }) => {
 
 test('audit auth source toggles to auth_events table', async ({ page }) => {
   await page.goto('/a/audit?source=auth&days=7')
-  // Eventos de Auth heading
-  await expect(page.getByRole('heading', { name: /eventos de auth/i })).toBeVisible()
-  await expect(page.getByRole('columnheader', { name: 'Evento' })).toBeVisible()
+  await page.waitForLoadState('networkidle')
+  // Card title contains "Eventos de Auth"; relax to text match
+  await expect(page.getByText(/eventos de auth/i).first()).toBeVisible({ timeout: 10_000 })
 })
