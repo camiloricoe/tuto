@@ -4,11 +4,13 @@ import { UserNav } from '@/components/shared/user-nav'
 import { SidebarNav, type NavItem } from '@/components/shared/sidebar-nav'
 import { NotificationBell } from '@/components/shared/notification-bell'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
+import { FeedbackWidget } from '@/components/shared/feedback-widget'
 import { getUnreadCountAction } from '@/app/actions/notifications'
 
 const teacherNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/t', icon: 'dashboard' },
   { label: 'Mis Cursos', href: '/t/courses', icon: 'courses' },
+  { label: 'Mis tickets', href: '/t/feedback', icon: 'feedback' },
 ]
 
 export default async function TeacherLayout({ children }: { children: React.ReactNode }) {
@@ -46,6 +48,7 @@ export default async function TeacherLayout({ children }: { children: React.Reac
         </aside>
         <main className="flex-1 p-6">{children}</main>
       </div>
+      <FeedbackWidget />
     </div>
   )
 }

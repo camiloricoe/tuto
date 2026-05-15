@@ -5,6 +5,7 @@ import { SidebarNav, type NavItem } from '@/components/shared/sidebar-nav'
 import { NotificationBell } from '@/components/shared/notification-bell'
 import { TenantSwitcher } from '@/components/shared/tenant-switcher'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
+import { FeedbackWidget } from '@/components/shared/feedback-widget'
 import { getUnreadCountAction } from '@/app/actions/notifications'
 
 const baseAdminNavItems: NavItem[] = [
@@ -30,6 +31,7 @@ const baseAdminNavItems: NavItem[] = [
     ],
   },
   { label: 'Importar', href: '/a/import', icon: 'import' },
+  { label: 'Feedback', href: '/a/feedback', icon: 'feedback' },
   { label: 'Auditoria', href: '/a/audit', icon: 'audit' },
   { label: 'Configuracion', href: '/a/settings', icon: 'settings' },
 ]
@@ -89,6 +91,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </aside>
         <main className="flex-1 p-6">{children}</main>
       </div>
+      <FeedbackWidget />
     </div>
   )
 }

@@ -485,6 +485,115 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback_comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          is_internal: boolean
+          ticket_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          ticket_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_comments_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback_tickets: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          created_by: string
+          description: string
+          id: string
+          priority: string
+          resolved_at: string | null
+          status: string
+          target_selector: string | null
+          target_text: string | null
+          target_url: string | null
+          tenant_id: string | null
+          title: string
+          type: string
+          updated_at: string
+          user_agent: string | null
+          user_role: string | null
+          viewport_height: number | null
+          viewport_width: number | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by: string
+          description: string
+          id?: string
+          priority?: string
+          resolved_at?: string | null
+          status?: string
+          target_selector?: string | null
+          target_text?: string | null
+          target_url?: string | null
+          tenant_id?: string | null
+          title: string
+          type: string
+          updated_at?: string
+          user_agent?: string | null
+          user_role?: string | null
+          viewport_height?: number | null
+          viewport_width?: number | null
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          id?: string
+          priority?: string
+          resolved_at?: string | null
+          status?: string
+          target_selector?: string | null
+          target_text?: string | null
+          target_url?: string | null
+          tenant_id?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_role?: string | null
+          viewport_height?: number | null
+          viewport_width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_tickets_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       grades: {
         Row: {
           comment: string | null
