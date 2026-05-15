@@ -6,7 +6,7 @@ export const createProgramSchema = z.object({
     .string()
     .min(2, 'Codigo requerido')
     .regex(/^[A-Z0-9_-]+$/, 'Solo mayusculas, numeros y guiones'),
-  modality: z.enum(['presencial', 'virtual', 'hibrido'], {
+  modality: z.enum(['fixed_curriculum', 'elective', 'cohort'], {
     error: 'Modalidad invalida',
   }),
   durationPeriods: z.number().int().min(1, 'Duracion minima 1 periodo'),
@@ -21,7 +21,7 @@ export const createPeriodSchema = z.object({
     .string()
     .min(2, 'Codigo requerido')
     .regex(/^[A-Z0-9_-]+$/, 'Solo mayusculas, numeros y guiones'),
-  kind: z.enum(['semester', 'trimester', 'quarter', 'year'], {
+  kind: z.enum(['bimester', 'trimester', 'quadrimester', 'semester', 'custom'], {
     error: 'Tipo invalido',
   }),
   startsOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha invalida (YYYY-MM-DD)'),

@@ -40,9 +40,9 @@ export default function NewProgramPage() {
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <option value="">Seleccionar...</option>
-                <option value="presencial">Presencial</option>
-                <option value="virtual">Virtual</option>
-                <option value="hibrido">Hibrido</option>
+                <option value="fixed_curriculum">Curriculo fijo</option>
+                <option value="elective">Electivo</option>
+                <option value="cohort">Cohorte</option>
               </select>
             </div>
 
