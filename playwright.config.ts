@@ -20,7 +20,7 @@ export default defineConfig({
     { name: 'setup', testMatch: /.*\.setup\.ts/ },
     {
       name: 'super-admin',
-      testMatch: /\/(smoke|admin-chained|feedback|tenant-isolation|audit-verification|crud-validation|integrations|chaos|security|data-flow)\.spec\.ts$/,
+      testMatch: /\/(smoke|admin-chained|feedback|tenant-isolation|audit-verification|crud-validation|integrations|chaos|security|data-flow|edit-flows)\.spec\.ts$/,
       use: { ...devices['Desktop Chrome'], storageState: 'tests/e2e/.auth/super-admin.json' },
       dependencies: ['setup'],
     },
