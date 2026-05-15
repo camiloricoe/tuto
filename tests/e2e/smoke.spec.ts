@@ -12,7 +12,7 @@ test.describe('Admin smoke', () => {
   test('tenants list with search', async ({ page }) => {
     await page.goto('/a/tenants')
     await expect(page.getByRole('heading', { name: 'Instituciones' })).toBeVisible()
-    await expect(page.getByText('INDECAP')).toBeVisible()
+    await expect(page.getByRole('main').getByText('INDECAP', { exact: true })).toBeVisible()
     await page.getByPlaceholder(/buscar/i).fill('xyz_no_match_zzz')
     await page.getByPlaceholder(/buscar/i).press('Enter')
     await expect(page.getByText(/no hay instituciones que coincidan/i)).toBeVisible()
