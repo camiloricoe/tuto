@@ -4,9 +4,10 @@ import { UserNav } from '@/components/shared/user-nav'
 import { SidebarNav, type NavItem } from '@/components/shared/sidebar-nav'
 import { NotificationBell } from '@/components/shared/notification-bell'
 import { TenantSwitcher } from '@/components/shared/tenant-switcher'
+import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { getUnreadCountAction } from '@/app/actions/notifications'
 
-const adminNavItems: NavItem[] = [
+const baseAdminNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/a', icon: 'dashboard' },
   { label: 'Usuarios', href: '/a/users', icon: 'users' },
   {
@@ -33,6 +34,12 @@ const adminNavItems: NavItem[] = [
   { label: 'Configuracion', href: '/a/settings', icon: 'settings' },
 ]
 
+const tenantsNavItem: NavItem = {
+  label: 'Instituciones',
+  href: '/a/tenants',
+  icon: 'tenants',
+}
+
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession()
 
@@ -43,6 +50,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const activeTenant = session.tenants.find((t) => t.id === session.activeTenantId)
   const unreadCount = await getUnreadCountAction()
+
+  const adminNavItems: NavItem[] = session.isSuperAdmin
+    ? [tenantsNavItem, ...baseAdminNavItems]
+    : baseAdminNavItems
 
   return (
     <div className="min-h-screen bg-background">
@@ -62,6 +73,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           />
         </div>
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <NotificationBell initialUnreadCount={unreadCount} />
           <UserNav
             fullName={session.profile.fullName}

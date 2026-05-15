@@ -2,6 +2,7 @@ import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { FormattedTime } from '@/components/shared/formatted-time'
 
 type SearchParams = Promise<{
   resource?: string
@@ -171,10 +172,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Search
                       return (
                         <tr key={entry.id} className="align-top">
                           <td className="py-2 pr-3 whitespace-nowrap text-xs text-muted-foreground">
-                            {new Date(entry.occurred_at).toLocaleString('es', {
-                              dateStyle: 'short',
-                              timeStyle: 'medium',
-                            })}
+                            <FormattedTime value={entry.occurred_at} />
                           </td>
                           {session.isSuperAdmin && (
                             <td className="py-2 pr-3 text-xs">
@@ -225,10 +223,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Search
                       return (
                         <tr key={entry.id}>
                           <td className="py-2 pr-3 whitespace-nowrap text-xs text-muted-foreground">
-                            {new Date(entry.occurred_at).toLocaleString('es', {
-                              dateStyle: 'short',
-                              timeStyle: 'medium',
-                            })}
+                            <FormattedTime value={entry.occurred_at} />
                           </td>
                           <td className="py-2 pr-3">
                             {profile?.full_name ?? (entry.user_id ? entry.user_id.slice(0, 8) : '—')}

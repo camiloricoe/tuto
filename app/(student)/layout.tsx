@@ -3,6 +3,7 @@ import { getSession, getPortalForRoles } from '@/lib/auth/session'
 import { UserNav } from '@/components/shared/user-nav'
 import { SidebarNav, type NavItem } from '@/components/shared/sidebar-nav'
 import { NotificationBell } from '@/components/shared/notification-bell'
+import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { getUnreadCountAction } from '@/app/actions/notifications'
 
 const studentNavItems: NavItem[] = [
@@ -31,6 +32,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
           <span className="text-sm text-muted-foreground">Estudiante</span>
         </div>
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <NotificationBell initialUnreadCount={unreadCount} />
           <UserNav
             fullName={session.profile.fullName}

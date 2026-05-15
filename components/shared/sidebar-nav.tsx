@@ -12,6 +12,7 @@ import {
   Settings,
   ClipboardList,
   ScrollText,
+  Building2,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -25,6 +26,7 @@ const ICONS = {
   settings: Settings,
   grades: ClipboardList,
   audit: ScrollText,
+  tenants: Building2,
 } as const satisfies Record<string, LucideIcon>
 
 export type IconName = keyof typeof ICONS

@@ -1,6 +1,7 @@
 import { requireSession } from '@/lib/auth/session'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { FormattedTime } from '@/components/shared/formatted-time'
 import { Users, BookOpen, AlertCircle, Activity } from 'lucide-react'
 
 export default async function AdminDashboard() {
@@ -103,12 +104,9 @@ export default async function AdminDashboard() {
                     <p className="text-sm font-medium">{entry.summary ?? entry.action_code}</p>
                     <p className="text-xs text-muted-foreground">{entry.action_code}</p>
                   </div>
-                  <time className="shrink-0 text-xs text-muted-foreground">
-                    {new Date(entry.occurred_at).toLocaleString('es', {
-                      dateStyle: 'short',
-                      timeStyle: 'short',
-                    })}
-                  </time>
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    <FormattedTime value={entry.occurred_at} variant="relative" />
+                  </span>
                 </li>
               ))}
             </ul>
