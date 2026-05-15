@@ -51,11 +51,16 @@ test('chain: create subject linked to program', async ({ page }) => {
 
 test('chain: create course using subject + period + scheme', async ({ page }) => {
   await page.goto('/a/academic/courses/new')
-  await page.getByLabel(/materia/i).selectOption({ label: SUBJECT_NAME })
-  await page.getByLabel(/periodo/i).selectOption({ label: new RegExp(PERIOD_NAME) })
-  await page.getByLabel(/esquema/i).selectOption({ label: SCHEME_NAME })
+  await page.locator('#subjectId').selectOption({ label: `${SUBJECT_NAME} (${SUBJECT_CODE})` })
+  await page.locator('#periodId').selectOption({ label: `${PERIOD_NAME} (${PERIOD_CODE})` })
+  await page.locator('#gradingSchemeId').selectOption({ label: SCHEME_NAME })
   await page.getByRole('button', { name: /crear curso/i }).click()
-  await page.waitForURL(/\/a\/academic\/courses/, { timeout: 10_000 })
+
+  // Action either shows success or redirects; both are valid
+  await Promise.race([
+    page.waitForURL(/\/a\/academic\/courses(?!\/new)/, { timeout: 15_000 }),
+    page.getByText(/curso creado exitosamente/i).waitFor({ timeout: 15_000 }),
+  ])
 })
 
 test('chain: course appears in list', async ({ page }) => {

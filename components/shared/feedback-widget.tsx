@@ -142,7 +142,7 @@ export function FeedbackWidget() {
     <div data-feedback-ignore>
       {!open && !picking && (
         <Button
-          onClick={() => setOpen(true)}
+          onClick={() => setPicking(true)}
           className="fixed bottom-6 right-6 z-50 h-12 gap-2 rounded-full shadow-lg"
           size="lg"
         >
@@ -152,8 +152,19 @@ export function FeedbackWidget() {
       )}
 
       {picking && (
-        <div className="fixed top-6 left-1/2 z-[99999] -translate-x-1/2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-lg">
-          Click en un elemento. ESC para cancelar.
+        <div className="fixed top-6 left-1/2 z-[99999] -translate-x-1/2 flex items-center gap-3 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-lg">
+          <Crosshair className="h-4 w-4" />
+          <span>Click en el elemento sobre el que quieres reportar (ESC cancela)</span>
+          <button
+            type="button"
+            onClick={() => {
+              setPicking(false)
+              setOpen(true)
+            }}
+            className="ml-2 rounded-full bg-primary-foreground/20 px-3 py-0.5 text-xs hover:bg-primary-foreground/30"
+          >
+            Saltar
+          </button>
         </div>
       )}
 
