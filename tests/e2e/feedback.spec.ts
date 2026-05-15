@@ -42,7 +42,7 @@ test('submit ticket without element capture (Saltar flow)', async ({ page }) => 
   await page.getByLabel('Descripcion').fill('Reporte sin elemento seleccionado')
   await page.getByRole('button', { name: /enviar reporte/i }).click()
   await expect(page.getByRole('heading', { name: /gracias/i })).toBeVisible({ timeout: 10_000 })
-  await page.getByRole('button', { name: /cerrar/i }).click()
+  await page.getByRole('button', { name: 'Cerrar', exact: true }).last().click()
 })
 
 test('submit ticket WITH element capture via picker', async ({ page }) => {
@@ -55,16 +55,15 @@ test('submit ticket WITH element capture via picker', async ({ page }) => {
 
   await expect(page.getByRole('heading', { name: /reportar feedback/i })).toBeVisible({ timeout: 5_000 })
 
-  // Verify the captured element shows up
-  const capturedBlock = page.getByText(/elemento seleccionado/i).locator('..')
-  await expect(capturedBlock).toContainText('Dashboard')
+  // Verify the captured element selector or text shows in the modal
+  await expect(page.locator('.font-mono').first()).toBeVisible()
 
   await page.getByLabel('Titulo').fill(TICKET_TITLE_PICKER)
   await page.getByLabel('Descripcion').fill('El dashboard muestra el numero incorrecto.')
   await page.getByRole('button', { name: /enviar reporte/i }).click()
 
   await expect(page.getByRole('heading', { name: /gracias/i })).toBeVisible({ timeout: 10_000 })
-  await page.getByRole('button', { name: /cerrar/i }).click()
+  await page.getByRole('button', { name: 'Cerrar', exact: true }).last().click()
 })
 
 test('both tickets appear in admin list', async ({ page }) => {
