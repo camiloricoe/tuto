@@ -147,6 +147,45 @@ export async function createGradingSchemeAction(_prevState: unknown, formData: F
   return { success: true }
 }
 
+const updateGradingSchemeSchema = createGradingSchemeSchema.partial()
+
+export async function updateGradingSchemeAction(_prevState: unknown, formData: FormData) {
+  const session = await requireSession()
+  await requirePermission('academic:write')
+  if (!session.activeTenantId) return { error: 'No hay tenant activo' }
+
+  const schemeId = formData.get('schemeId') as string
+  if (!schemeId) return { error: 'ID requerido' }
+
+  const parsed = updateGradingSchemeSchema.safeParse({
+    name: (formData.get('name') as string) || undefined,
+    scale_min: formData.get('scale_min') || undefined,
+    scale_max: formData.get('scale_max') || undefined,
+    passing_grade: formData.get('passing_grade') || undefined,
+    uses_letters: formData.get('uses_letters') === 'true',
+  })
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos invalidos' }
+
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from('grading_schemes')
+    .update(parsed.data)
+    .eq('id', schemeId)
+    .eq('tenant_id', session.activeTenantId)
+  if (error) return { error: 'Error al actualizar el esquema' }
+
+  await logActivity({
+    tenantId: session.activeTenantId,
+    actorUserId: session.userId,
+    actionCode: 'grading_scheme.updated',
+    resourceType: 'grading_scheme',
+    resourceId: schemeId,
+    summary: `Esquema actualizado`,
+  })
+  revalidatePath('/a/settings')
+  return { success: true }
+}
+
 export async function deletePeriodAction(periodId: string) {
   const session = await requireSession()
   await requirePermission('academic:write')
