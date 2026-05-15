@@ -3,6 +3,7 @@ import { getSession, getPortalForRoles } from '@/lib/auth/session'
 import { UserNav } from '@/components/shared/user-nav'
 import { SidebarNav, type NavItem } from '@/components/shared/sidebar-nav'
 import { NotificationBell } from '@/components/shared/notification-bell'
+import { TenantSwitcher } from '@/components/shared/tenant-switcher'
 import { getUnreadCountAction } from '@/app/actions/notifications'
 
 const adminNavItems: NavItem[] = [
@@ -28,6 +29,7 @@ const adminNavItems: NavItem[] = [
     ],
   },
   { label: 'Importar', href: '/a/import', icon: 'import' },
+  { label: 'Auditoria', href: '/a/audit', icon: 'audit' },
   { label: 'Configuracion', href: '/a/settings', icon: 'settings' },
 ]
 
@@ -48,11 +50,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="flex items-center gap-4">
           <span className="text-lg font-semibold tracking-tight">TUTO</span>
           <span className="text-sm text-muted-foreground">Admin</span>
-          {activeTenant && (
-            <span className="rounded-full bg-primary/10 px-3 py-0.5 text-xs font-medium text-primary">
-              {activeTenant.name}
+          {session.isSuperAdmin && (
+            <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-600">
+              Super Admin
             </span>
           )}
+          <TenantSwitcher
+            tenants={session.tenants}
+            activeTenantId={session.activeTenantId}
+            isSuperAdmin={session.isSuperAdmin}
+          />
         </div>
         <div className="flex items-center gap-2">
           <NotificationBell initialUnreadCount={unreadCount} />

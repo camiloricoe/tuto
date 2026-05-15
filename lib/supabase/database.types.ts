@@ -1333,6 +1333,7 @@ export type Database = {
           document_type: string | null
           full_name: string
           id: string
+          is_super_admin: boolean
           phone: string | null
           two_factor_enabled_at: string | null
           two_factor_required: boolean
@@ -1345,6 +1346,7 @@ export type Database = {
           document_type?: string | null
           full_name?: string
           id: string
+          is_super_admin?: boolean
           phone?: string | null
           two_factor_enabled_at?: string | null
           two_factor_required?: boolean
@@ -1357,6 +1359,7 @@ export type Database = {
           document_type?: string | null
           full_name?: string
           id?: string
+          is_super_admin?: boolean
           phone?: string | null
           two_factor_enabled_at?: string | null
           two_factor_required?: boolean

@@ -6,6 +6,7 @@ import { UnauthorizedError } from './errors'
 export type Session = {
   userId: string
   email: string
+  isSuperAdmin: boolean
   profile: {
     fullName: string
     avatarUrl: string | null
@@ -18,7 +19,7 @@ export type Session = {
   permissions: Set<string>
 }
 
-const ACTIVE_TENANT_COOKIE = 'tuto-active-tenant'
+export const ACTIVE_TENANT_COOKIE = 'tuto-active-tenant'
 
 export async function getSession(): Promise<Session | null> {
   const supabase = await createClient()
@@ -28,27 +29,36 @@ export async function getSession(): Promise<Session | null> {
 
   const admin = createAdminClient()
 
-  // Fetch profile
   const { data: profile } = await admin
     .from('user_profiles')
-    .select('full_name, avatar_url, two_factor_required, two_factor_enabled_at')
+    .select('full_name, avatar_url, two_factor_required, two_factor_enabled_at, is_super_admin')
     .eq('id', user.id)
     .single()
 
   if (!profile) return null
 
-  // Fetch tenant memberships
-  const { data: memberships } = await admin
-    .from('user_tenant_memberships')
-    .select('tenant_id, tenants(id, name, slug)')
-    .eq('user_id', user.id)
-    .eq('active', true)
+  const isSuperAdmin = profile.is_super_admin === true
 
-  const tenants = (memberships ?? [])
-    .map((m) => m.tenants as unknown as { id: string; name: string; slug: string })
-    .filter(Boolean)
+  let tenants: Array<{ id: string; name: string; slug: string }>
 
-  // Determine active tenant
+  if (isSuperAdmin) {
+    const { data: allTenants } = await admin
+      .from('tenants')
+      .select('id, name, slug')
+      .eq('active', true)
+      .order('name')
+    tenants = allTenants ?? []
+  } else {
+    const { data: memberships } = await admin
+      .from('user_tenant_memberships')
+      .select('tenants(id, name, slug)')
+      .eq('user_id', user.id)
+      .eq('active', true)
+    tenants = (memberships ?? [])
+      .map((m) => m.tenants as unknown as { id: string; name: string; slug: string })
+      .filter(Boolean)
+  }
+
   const cookieStore = await cookies()
   let activeTenantId = cookieStore.get(ACTIVE_TENANT_COOKIE)?.value ?? null
 
@@ -56,11 +66,14 @@ export async function getSession(): Promise<Session | null> {
     activeTenantId = tenants[0]?.id ?? null
   }
 
-  // Fetch roles and permissions for active tenant
   let roles: string[] = []
   const permissions = new Set<string>()
 
-  if (activeTenantId) {
+  if (isSuperAdmin) {
+    roles = ['super_admin']
+    const { data: allPerms } = await admin.from('permissions').select('code')
+    for (const p of allPerms ?? []) permissions.add(p.code)
+  } else if (activeTenantId) {
     const { data: userRoles } = await admin
       .from('user_roles')
       .select('role_id, roles(code)')
@@ -70,7 +83,6 @@ export async function getSession(): Promise<Session | null> {
 
     roles = (userRoles ?? []).map((ur) => (ur.roles as unknown as { code: string })?.code).filter(Boolean)
 
-    // Fetch permissions for these roles
     const roleIds = (userRoles ?? []).map((ur) => ur.role_id)
     if (roleIds.length > 0) {
       const { data: rolePerms } = await admin
@@ -88,6 +100,7 @@ export async function getSession(): Promise<Session | null> {
   return {
     userId: user.id,
     email: user.email ?? '',
+    isSuperAdmin,
     profile: {
       fullName: profile.full_name,
       avatarUrl: profile.avatar_url,
