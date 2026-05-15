@@ -4,25 +4,14 @@ import { UserNav } from '@/components/shared/user-nav'
 import { SidebarNav, type NavItem } from '@/components/shared/sidebar-nav'
 import { NotificationBell } from '@/components/shared/notification-bell'
 import { getUnreadCountAction } from '@/app/actions/notifications'
-import {
-  LayoutDashboard,
-  Users,
-  GraduationCap,
-  BookOpen,
-  CreditCard,
-  Receipt,
-  FileText,
-  Upload,
-  Settings,
-} from 'lucide-react'
 
 const adminNavItems: NavItem[] = [
-  { label: 'Dashboard', href: '/a', icon: LayoutDashboard },
-  { label: 'Usuarios', href: '/a/users', icon: Users },
+  { label: 'Dashboard', href: '/a', icon: 'dashboard' },
+  { label: 'Usuarios', href: '/a/users', icon: 'users' },
   {
     label: 'Academico',
     href: '/a/academic/programs',
-    icon: GraduationCap,
+    icon: 'academic',
     children: [
       { label: 'Programas', href: '/a/academic/programs' },
       { label: 'Cursos', href: '/a/academic/courses' },
@@ -31,15 +20,15 @@ const adminNavItems: NavItem[] = [
   {
     label: 'Pagos',
     href: '/a/payments/concepts',
-    icon: CreditCard,
+    icon: 'payments',
     children: [
       { label: 'Conceptos', href: '/a/payments/concepts' },
       { label: 'Registrar pago', href: '/a/payments' },
       { label: 'Cargos', href: '/a/payments/charges' },
     ],
   },
-  { label: 'Importar', href: '/a/import', icon: Upload },
-  { label: 'Configuracion', href: '/a/settings', icon: Settings },
+  { label: 'Importar', href: '/a/import', icon: 'import' },
+  { label: 'Configuracion', href: '/a/settings', icon: 'settings' },
 ]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

@@ -2,12 +2,35 @@
 
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import type { LucideIcon } from 'lucide-react'
+import {
+  LayoutDashboard,
+  Users,
+  GraduationCap,
+  BookOpen,
+  CreditCard,
+  Upload,
+  Settings,
+  ClipboardList,
+  type LucideIcon,
+} from 'lucide-react'
+
+const ICONS = {
+  dashboard: LayoutDashboard,
+  users: Users,
+  academic: GraduationCap,
+  courses: BookOpen,
+  payments: CreditCard,
+  import: Upload,
+  settings: Settings,
+  grades: ClipboardList,
+} as const satisfies Record<string, LucideIcon>
+
+export type IconName = keyof typeof ICONS
 
 export type NavItem = {
   label: string
   href: string
-  icon: LucideIcon
+  icon: IconName
   children?: { label: string; href: string }[]
 }
 
@@ -24,7 +47,7 @@ export function SidebarNav({ items }: SidebarNavProps) {
         const isActive =
           item.href === pathname ||
           (item.children?.some((c) => c.href === pathname) ?? false)
-        const Icon = item.icon
+        const Icon = ICONS[item.icon]
 
         return (
           <div key={item.href}>

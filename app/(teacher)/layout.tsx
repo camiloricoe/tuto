@@ -4,11 +4,10 @@ import { UserNav } from '@/components/shared/user-nav'
 import { SidebarNav, type NavItem } from '@/components/shared/sidebar-nav'
 import { NotificationBell } from '@/components/shared/notification-bell'
 import { getUnreadCountAction } from '@/app/actions/notifications'
-import { LayoutDashboard, BookOpen } from 'lucide-react'
 
 const teacherNavItems: NavItem[] = [
-  { label: 'Dashboard', href: '/t', icon: LayoutDashboard },
-  { label: 'Mis Cursos', href: '/t/courses', icon: BookOpen },
+  { label: 'Dashboard', href: '/t', icon: 'dashboard' },
+  { label: 'Mis Cursos', href: '/t/courses', icon: 'courses' },
 ]
 
 export default async function TeacherLayout({ children }: { children: React.ReactNode }) {
