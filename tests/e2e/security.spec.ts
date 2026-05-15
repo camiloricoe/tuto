@@ -57,12 +57,12 @@ test.describe('Auth boundaries', () => {
   })
 
   test('unauthenticated GET /api/pdf/receipt returns non-2xx', async ({ request }) => {
-    const res = await request.get('/api/pdf/receipt?paymentId=any', { failOnStatusCode: false })
+    const res = await request.get('/api/pdf/receipt?paymentId=any', { failOnStatusCode: false, maxRedirects: 0 })
     expect([301, 302, 307, 308, 401, 403, 404]).toContain(res.status())
   })
 
   test('unauthenticated GET /api/pdf/grade-report returns non-2xx', async ({ request }) => {
-    const res = await request.get('/api/pdf/grade-report?courseId=any', { failOnStatusCode: false })
+    const res = await request.get('/api/pdf/grade-report?courseId=any', { failOnStatusCode: false, maxRedirects: 0 })
     expect([301, 302, 307, 308, 401, 403, 404]).toContain(res.status())
   })
 

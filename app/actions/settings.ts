@@ -147,7 +147,82 @@ export async function createGradingSchemeAction(_prevState: unknown, formData: F
   return { success: true }
 }
 
+const updatePeriodSchema = createPeriodSchema.partial().extend({ active: z.boolean().optional() })
 const updateGradingSchemeSchema = createGradingSchemeSchema.partial()
+const updateSubjectSchema = createSubjectSchema.partial()
+
+export async function updatePeriodAction(_prevState: unknown, formData: FormData) {
+  const session = await requireSession()
+  await requirePermission('academic:write')
+  if (!session.activeTenantId) return { error: 'No hay tenant activo' }
+  const periodId = formData.get('periodId') as string
+  if (!periodId) return { error: 'ID requerido' }
+
+  const parsed = updatePeriodSchema.safeParse({
+    name: (formData.get('name') as string) || undefined,
+    code: (formData.get('code') as string) || undefined,
+    kind: (formData.get('kind') as string) || undefined,
+    starts_on: (formData.get('starts_on') as string) || undefined,
+    ends_on: (formData.get('ends_on') as string) || undefined,
+    active: formData.get('active') === 'true' ? true : formData.get('active') === 'false' ? false : undefined,
+  })
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos invalidos' }
+
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from('academic_periods')
+    .update(parsed.data)
+    .eq('id', periodId)
+    .eq('tenant_id', session.activeTenantId)
+  if (error) return { error: 'Error al actualizar el periodo' }
+
+  await logActivity({
+    tenantId: session.activeTenantId,
+    actorUserId: session.userId,
+    actionCode: 'period.updated',
+    resourceType: 'academic_period',
+    resourceId: periodId,
+    summary: `Periodo actualizado`,
+  })
+  revalidatePath('/a/settings')
+  return { success: true }
+}
+
+export async function updateSubjectAction(_prevState: unknown, formData: FormData) {
+  const session = await requireSession()
+  await requirePermission('academic:write')
+  if (!session.activeTenantId) return { error: 'No hay tenant activo' }
+  const subjectId = formData.get('subjectId') as string
+  if (!subjectId) return { error: 'ID requerido' }
+
+  const creditsRaw = formData.get('credits') as string
+  const parsed = updateSubjectSchema.safeParse({
+    name: (formData.get('name') as string) || undefined,
+    code: (formData.get('code') as string) || undefined,
+    program_id: (formData.get('program_id') as string) || undefined,
+    credits: creditsRaw ? Number(creditsRaw) : undefined,
+  })
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos invalidos' }
+
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from('subjects')
+    .update(parsed.data)
+    .eq('id', subjectId)
+    .eq('tenant_id', session.activeTenantId)
+  if (error) return { error: 'Error al actualizar la materia' }
+
+  await logActivity({
+    tenantId: session.activeTenantId,
+    actorUserId: session.userId,
+    actionCode: 'subject.updated',
+    resourceType: 'subject',
+    resourceId: subjectId,
+    summary: `Materia actualizada`,
+  })
+  revalidatePath('/a/settings')
+  return { success: true }
+}
 
 export async function updateGradingSchemeAction(_prevState: unknown, formData: FormData) {
   const session = await requireSession()
