@@ -13,7 +13,7 @@ import {
 function EditLink({ href }: { href: string }) {
   return (
     <Button asChild variant="outline" size="sm" className="gap-1">
-      <Link href={href}>
+      <Link href={href as never}>
         <Pencil className="h-4 w-4" />
         Editar
       </Link>
