@@ -16,3 +16,11 @@
 {"t":0,"agent":"ad3a92b","agent_type":"unknown","event":"agent_stop","success":true}
 {"t":0,"agent":"a8d0eb3","agent_type":"unknown","event":"agent_stop","success":true}
 {"t":0,"agent":"ab6bbfb","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"a3fb9cc","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"ac3cd03","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"system","event":"keyword_detected","keyword":"ultrathink"}
+{"t":0,"agent":"a768c3f","agent_type":"statusline-setup","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a768c3f","agent_type":"statusline-setup","event":"agent_stop","success":true,"duration_ms":17710}
+{"t":0,"agent":"a62fbee","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"ac88871","agent_type":"statusline-setup","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"ac88871","agent_type":"statusline-setup","event":"agent_stop","success":true,"duration_ms":30542}

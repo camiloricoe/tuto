@@ -245,6 +245,12 @@
       "type": "file"
     },
     {
+      "path": "playwright.config.ts",
+      "accessCount": 8,
+      "lastAccessed": 1778816479271,
+      "type": "file"
+    },
+    {
       "path": "package.json",
       "accessCount": 6,
       "lastAccessed": 1777921411853,
@@ -296,12 +302,6 @@
       "path": "app/layout.tsx",
       "accessCount": 4,
       "lastAccessed": 1778810480373,
-      "type": "file"
-    },
-    {
-      "path": "playwright.config.ts",
-      "accessCount": 4,
-      "lastAccessed": 1778814177165,
       "type": "file"
     },
     {
