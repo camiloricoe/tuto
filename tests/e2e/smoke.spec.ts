@@ -89,7 +89,7 @@ test.describe('Admin smoke', () => {
 
   test('tenant switcher dropdown opens', async ({ page }) => {
     await page.goto('/a')
-    await page.locator('header').getByRole('button').filter({ hasText: /indecap|seleccionar/i }).first().click()
+    await page.getByTestId('tenant-switcher').click()
     await expect(page.getByText(/todas las instituciones|tus instituciones/i)).toBeVisible()
   })
 

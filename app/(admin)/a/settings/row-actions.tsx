@@ -43,5 +43,10 @@ export function SchemeRowActions({ id, canWrite }: { id: string; canWrite: boole
 
 export function SubjectRowActions({ id, canWrite }: { id: string; canWrite: boolean }) {
   if (!canWrite) return null
-  return <DeleteButton action={async () => deleteSubjectAction(id)} />
+  return (
+    <div className="flex items-center gap-2">
+      <EditLink href={`/a/settings/subjects/${id}/edit`} />
+      <DeleteButton action={async () => deleteSubjectAction(id)} />
+    </div>
+  )
 }

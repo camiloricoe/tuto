@@ -58,6 +58,7 @@ export function TenantSwitcher({ tenants, activeTenantId, isSuperAdmin }: Tenant
         <Button
           variant="ghost"
           size="sm"
+          data-testid="tenant-switcher"
           className="h-7 gap-1.5 rounded-full bg-primary/10 px-3 text-xs font-medium text-primary hover:bg-primary/20"
           disabled={isPending}
         >

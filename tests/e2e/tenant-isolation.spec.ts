@@ -25,14 +25,14 @@ test.afterAll(async ({ browser }) => {
 
 test('switcher lists multiple tenants for super admin', async ({ page }) => {
   await page.goto('/a')
-  await page.locator('header').getByRole('button').filter({ hasText: /indecap|seleccionar/i }).first().click()
+  await page.getByTestId('tenant-switcher').click()
   await expect(page.getByRole('menuitem').filter({ hasText: 'INDECAP' })).toBeVisible()
   await expect(page.getByRole('menuitem').filter({ hasText: 'E2E Iso Tenant' })).toBeVisible()
 })
 
 test('switching to iso tenant changes active tenant pill', async ({ page }) => {
   await page.goto('/a')
-  await page.locator('header').getByRole('button').filter({ hasText: /indecap|seleccionar/i }).first().click()
+  await page.getByTestId('tenant-switcher').click()
   await page.getByRole('menuitem').filter({ hasText: 'E2E Iso Tenant' }).click()
   await page.waitForLoadState('networkidle')
   await expect(page.locator('header').getByRole('button', { name: /e2e iso tenant/i })).toBeVisible({ timeout: 10_000 })
@@ -45,7 +45,7 @@ test('iso tenant programs page shows ISO-only program', async ({ page }) => {
 
 test('switching back to INDECAP hides ISO-only program', async ({ page }) => {
   await page.goto('/a')
-  await page.locator('header').getByRole('button', { name: /e2e iso tenant/i }).click()
+  await page.getByTestId('tenant-switcher').click()
   await page.getByRole('menuitem').filter({ hasText: 'INDECAP' }).click()
   await page.waitForLoadState('networkidle')
   await page.goto('/a/academic/programs')
