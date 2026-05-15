@@ -14,18 +14,29 @@ export async function getPaymentConcepts(tenantId: string) {
 
 export async function getPayments(tenantId: string, limit = 50) {
   const admin = createAdminClient()
-  const { data, error } = await admin
+  const { data: payments, error } = await admin
     .from('payments')
     .select(
-      `id, amount, currency, method, paid_on, status, reference, notes, recorded_at,
-       user_profiles!payments_student_id_fkey(id, full_name)`,
+      'id, amount, currency, method, paid_on, status, reference, notes, recorded_at, student_id',
     )
     .eq('tenant_id', tenantId)
     .is('deleted_at', null)
     .order('recorded_at', { ascending: false })
     .limit(limit)
   if (error) throw new Error(error.message)
-  return data
+  if (!payments || payments.length === 0) return []
+
+  const studentIds = Array.from(new Set(payments.map((p) => p.student_id)))
+  const { data: profiles } = await admin
+    .from('user_profiles')
+    .select('id, full_name')
+    .in('id', studentIds)
+
+  const profileById = new Map((profiles ?? []).map((p) => [p.id, p]))
+  return payments.map((p) => ({
+    ...p,
+    user_profiles: profileById.get(p.student_id) ?? null,
+  }))
 }
 
 export async function getStudentCharges(tenantId: string, studentId: string) {

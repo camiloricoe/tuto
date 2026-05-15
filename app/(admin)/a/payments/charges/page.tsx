@@ -15,15 +15,25 @@ export default async function ChargesPage() {
   const tenantId = session.activeTenantId
   const admin = createAdminClient()
 
-  const { data: charges } = await admin
+  const { data: rawCharges } = await admin
     .from('student_charges')
     .select(
-      'id, amount, status, due_date, notes, student_id, user_profiles!student_charges_student_id_fkey(full_name), payment_concepts(name, code)',
+      'id, amount, status, due_date, notes, student_id, payment_concepts(name, code)',
     )
     .eq('tenant_id', tenantId)
     .is('deleted_at', null)
     .order('due_date', { ascending: false })
     .limit(100)
+
+  const studentIds = Array.from(new Set((rawCharges ?? []).map((c) => c.student_id)))
+  const { data: profiles } = studentIds.length
+    ? await admin.from('user_profiles').select('id, full_name').in('id', studentIds)
+    : { data: [] }
+  const profileById = new Map((profiles ?? []).map((p) => [p.id, p]))
+  const charges = (rawCharges ?? []).map((c) => ({
+    ...c,
+    user_profiles: profileById.get(c.student_id) ?? null,
+  }))
 
   const canWrite = session.permissions.has('payments:write')
 

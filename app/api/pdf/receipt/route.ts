@@ -25,15 +25,11 @@ export async function GET(req: NextRequest) {
     const admin = createAdminClient()
     const tenantId = session.activeTenantId
 
-    // Fetch payment with student profile and tenant
     const [paymentRes, tenantRes] = await Promise.all([
       admin
         .from('payments')
         .select(
-          `
-          id, amount, currency, method, paid_on, reference, recorded_at, student_id,
-          user_profiles!student_id(full_name, document_number)
-        `,
+          'id, amount, currency, method, paid_on, reference, recorded_at, student_id',
         )
         .eq('id', paymentId)
         .eq('tenant_id', tenantId)
@@ -50,10 +46,11 @@ export async function GET(req: NextRequest) {
     }
 
     const payment = paymentRes.data
-    const student = payment.user_profiles as unknown as {
-      full_name: string
-      document_number: string | null
-    } | null
+    const { data: student } = await admin
+      .from('user_profiles')
+      .select('full_name, document_number')
+      .eq('id', payment.student_id)
+      .single()
 
     // Fetch allocations with concept names
     const { data: allocations } = await admin

@@ -14,17 +14,6 @@ export default async function UsersPage() {
 
   const admin = createAdminClient()
 
-  const { data: members } = await admin
-    .from('user_tenant_memberships')
-    .select(`
-      user_id,
-      user_profiles(full_name),
-      users:user_id(email:auth.users.email)
-    `)
-    .eq('tenant_id', session.activeTenantId)
-    .eq('active', true)
-
-  // Fetch with a simpler approach
   const { data: memberships } = await admin
     .from('user_tenant_memberships')
     .select('user_id')

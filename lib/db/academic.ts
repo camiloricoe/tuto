@@ -110,16 +110,24 @@ export async function getCourseRoster(tenantId: string, courseId: string) {
   const admin = createAdminClient()
   const { data, error } = await admin
     .from('enrollments')
-    .select(
-      `id, status, enrolled_at, final_grade, final_letter,
-       user_profiles!enrollments_student_id_fkey(id, full_name)`,
-    )
+    .select('id, status, enrolled_at, final_grade, final_letter, student_id')
     .eq('tenant_id', tenantId)
     .eq('course_id', courseId)
     .is('deleted_at', null)
     .order('enrolled_at')
   if (error) throw new Error(error.message)
-  return data
+  if (!data || data.length === 0) return []
+
+  const studentIds = Array.from(new Set(data.map((e) => e.student_id)))
+  const { data: profiles } = await admin
+    .from('user_profiles')
+    .select('id, full_name')
+    .in('id', studentIds)
+  const profileById = new Map((profiles ?? []).map((p) => [p.id, p]))
+  return data.map((e) => ({
+    ...e,
+    user_profiles: profileById.get(e.student_id) ?? null,
+  }))
 }
 
 export async function getStudentEnrollments(tenantId: string, studentId: string) {
@@ -159,12 +167,10 @@ export async function getStudentGrades(tenantId: string, enrollmentId: string) {
 
 export async function getCourseGrades(tenantId: string, courseId: string) {
   const admin = createAdminClient()
-  // Get all enrollments and their grades for this course
   const { data, error } = await admin
     .from('enrollments')
     .select(
       `id, student_id, final_grade, final_letter, status,
-       user_profiles!enrollments_student_id_fkey(id, full_name),
        grades(id, value, letter, status, evaluation_id, comment)`,
     )
     .eq('tenant_id', tenantId)
@@ -172,7 +178,18 @@ export async function getCourseGrades(tenantId: string, courseId: string) {
     .is('deleted_at', null)
     .order('enrolled_at')
   if (error) throw new Error(error.message)
-  return data
+  if (!data || data.length === 0) return []
+
+  const studentIds = Array.from(new Set(data.map((e) => e.student_id)))
+  const { data: profiles } = await admin
+    .from('user_profiles')
+    .select('id, full_name')
+    .in('id', studentIds)
+  const profileById = new Map((profiles ?? []).map((p) => [p.id, p]))
+  return data.map((e) => ({
+    ...e,
+    user_profiles: profileById.get(e.student_id) ?? null,
+  }))
 }
 
 export async function getGradingSchemes(tenantId: string) {
