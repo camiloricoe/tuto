@@ -73,11 +73,12 @@ export function FeedbackWidget() {
     }
 
     const onClick = (e: MouseEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
       const target = document.elementFromPoint(e.clientX, e.clientY)
       if (!target || target === overlay) return
+      // Don't intercept clicks on the widget's own UI (button, banner, etc.)
       if (target.closest('[data-feedback-ignore]')) return
+      e.preventDefault()
+      e.stopPropagation()
       const rect = target.getBoundingClientRect()
       setCaptured({
         selector: buildSelector(target),
