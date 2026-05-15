@@ -1074,6 +1074,69 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_test_runs: {
+        Row: {
+          branch: string | null
+          commit_sha: string | null
+          created_at: string
+          details: Json | null
+          duration_ms: number
+          e2e_failed: number
+          e2e_passed: number
+          e2e_skipped: number
+          e2e_total: number
+          environment: string
+          id: string
+          ran_at: string
+          source: string
+          status: string
+          trigger_actor: string | null
+          unit_failed: number
+          unit_passed: number
+          unit_total: number
+        }
+        Insert: {
+          branch?: string | null
+          commit_sha?: string | null
+          created_at?: string
+          details?: Json | null
+          duration_ms?: number
+          e2e_failed?: number
+          e2e_passed?: number
+          e2e_skipped?: number
+          e2e_total?: number
+          environment?: string
+          id?: string
+          ran_at?: string
+          source: string
+          status: string
+          trigger_actor?: string | null
+          unit_failed?: number
+          unit_passed?: number
+          unit_total?: number
+        }
+        Update: {
+          branch?: string | null
+          commit_sha?: string | null
+          created_at?: string
+          details?: Json | null
+          duration_ms?: number
+          e2e_failed?: number
+          e2e_passed?: number
+          e2e_skipped?: number
+          e2e_total?: number
+          environment?: string
+          id?: string
+          ran_at?: string
+          source?: string
+          status?: string
+          trigger_actor?: string | null
+          unit_failed?: number
+          unit_passed?: number
+          unit_total?: number
+        }
+        Relationships: []
+      }
       receipts: {
         Row: {
           id: string
