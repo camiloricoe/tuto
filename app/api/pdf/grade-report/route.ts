@@ -5,6 +5,7 @@ import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { GradeReportPDF, type GradeReportData } from '@/lib/pdf/grade-report'
+import { resolveBrandingForPdf } from '@/lib/pdf/branding'
 
 export async function GET(req: NextRequest) {
   try {
@@ -127,10 +128,14 @@ export async function GET(req: NextRequest) {
       }
     })
 
+    // Resolve tenant branding (logo bytes, colors, support contacts).
+    // Never throws — falls back to TUTO defaults if anything is missing.
+    const branding = await resolveBrandingForPdf(tenantId, tenantRes.data.name)
+
     const data: GradeReportData = {
       studentName: studentRes.data.full_name,
       documentNumber: studentRes.data.document_number,
-      institutionName: tenantRes.data.name,
+      institutionName: branding.tenantName,
       programName,
       periodName: period.name,
       courses,
@@ -138,6 +143,7 @@ export async function GET(req: NextRequest) {
         dateStyle: 'long',
         timeStyle: 'short',
       }),
+      branding,
     }
 
     const buffer = await renderToBuffer(GradeReportPDF({ data }))

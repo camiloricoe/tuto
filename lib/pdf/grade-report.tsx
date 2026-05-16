@@ -1,4 +1,5 @@
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
+import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer'
+import type { PdfBranding } from './branding'
 
 export type GradeReportData = {
   studentName: string
@@ -15,21 +16,41 @@ export type GradeReportData = {
     passed: boolean
   }>
   generatedAt: string
+  branding?: PdfBranding
 }
+
+const DEFAULT_PRIMARY = '#1a1a1a'
+const DEFAULT_ACCENT = '#555555'
 
 const styles = StyleSheet.create({
   page: {
     fontFamily: 'Helvetica',
     fontSize: 10,
     paddingTop: 40,
-    paddingBottom: 40,
+    paddingBottom: 60,
     paddingHorizontal: 40,
     color: '#1a1a1a',
   },
+  brandStrip: {
+    height: 6,
+    marginBottom: 16,
+    borderRadius: 2,
+  },
   header: {
     marginBottom: 24,
-    borderBottom: '2px solid #1a1a1a',
     paddingBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  logo: {
+    width: 48,
+    height: 48,
+    objectFit: 'contain',
+  },
+  headerText: {
+    flexDirection: 'column',
+    flex: 1,
   },
   institutionName: {
     fontSize: 18,
@@ -39,7 +60,6 @@ const styles = StyleSheet.create({
   reportTitle: {
     fontSize: 13,
     fontFamily: 'Helvetica-Bold',
-    color: '#444',
   },
   infoSection: {
     marginBottom: 20,
@@ -65,7 +85,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   courseHeader: {
-    backgroundColor: '#1a1a1a',
     color: '#fff',
     padding: '6 10',
     flexDirection: 'row',
@@ -80,7 +99,7 @@ const styles = StyleSheet.create({
   },
   courseCode: {
     fontSize: 9,
-    color: '#ccc',
+    color: '#ddd',
   },
   courseFinalBadge: {
     flexDirection: 'row',
@@ -138,8 +157,9 @@ const styles = StyleSheet.create({
     bottom: 30,
     left: 40,
     right: 40,
-    borderTop: '0.5px solid #ccc',
     paddingTop: 6,
+  },
+  footerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
@@ -147,16 +167,42 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: '#888',
   },
+  footerSupport: {
+    fontSize: 8,
+    color: '#666',
+    marginTop: 2,
+  },
 })
 
 export function GradeReportPDF({ data }: { data: GradeReportData }) {
+  const primary = data.branding?.primaryHex ?? DEFAULT_PRIMARY
+  const accent = data.branding?.accentHex ?? DEFAULT_ACCENT
+  const logoBytes = data.branding?.logoBytes ?? null
+  const supportEmail = data.branding?.supportEmail ?? null
+  const supportUrl = data.branding?.supportUrl ?? null
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        {/* Branded color strip across the top */}
+        <View style={[styles.brandStrip, { backgroundColor: primary }]} />
+
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.institutionName}>{data.institutionName}</Text>
-          <Text style={styles.reportTitle}>Boletin de Calificaciones</Text>
+        <View
+          style={[
+            styles.header,
+            { borderBottom: `2px solid ${primary}` },
+          ]}
+        >
+          {logoBytes && (
+            <Image style={styles.logo} src={logoBytes as unknown as string} />
+          )}
+          <View style={styles.headerText}>
+            <Text style={styles.institutionName}>{data.institutionName}</Text>
+            <Text style={[styles.reportTitle, { color: accent }]}>
+              Boletin de Calificaciones
+            </Text>
+          </View>
         </View>
 
         {/* Student Info */}
@@ -184,7 +230,7 @@ export function GradeReportPDF({ data }: { data: GradeReportData }) {
         {/* Courses */}
         {data.courses.map((course, idx) => (
           <View key={idx} style={styles.courseBlock} wrap={false}>
-            <View style={styles.courseHeader}>
+            <View style={[styles.courseHeader, { backgroundColor: primary }]}>
               <View>
                 <Text style={styles.courseTitle}>{course.subjectName}</Text>
                 <Text style={styles.courseCode}>{course.subjectCode}</Text>
@@ -222,9 +268,21 @@ export function GradeReportPDF({ data }: { data: GradeReportData }) {
         ))}
 
         {/* Footer */}
-        <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{data.institutionName}</Text>
-          <Text style={styles.footerText}>Generado: {data.generatedAt}</Text>
+        <View
+          style={[styles.footer, { borderTop: `0.5px solid ${accent}` }]}
+          fixed
+        >
+          <View style={styles.footerRow}>
+            <Text style={styles.footerText}>{data.institutionName}</Text>
+            <Text style={styles.footerText}>Generado: {data.generatedAt}</Text>
+          </View>
+          {(supportEmail || supportUrl) && (
+            <Text style={styles.footerSupport}>
+              {supportEmail ? `Soporte: ${supportEmail}` : ''}
+              {supportEmail && supportUrl ? '  ·  ' : ''}
+              {supportUrl ?? ''}
+            </Text>
+          )}
         </View>
       </Page>
     </Document>

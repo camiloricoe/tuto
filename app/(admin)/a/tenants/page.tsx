@@ -1,9 +1,10 @@
+import Link from 'next/link'
 import { requireSession } from '@/lib/auth/session'
 import { requireSuperAdmin } from '@/lib/auth/permissions'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Card, CardContent } from '@/components/ui/card'
 import { FormattedTime } from '@/components/shared/formatted-time'
-import { Search, Building2 } from 'lucide-react'
+import { Search, Building2, Globe } from 'lucide-react'
 import { CreateTenantForm } from './create-form'
 
 type SearchParams = Promise<{ q?: string }>
@@ -18,7 +19,7 @@ export default async function TenantsPage({ searchParams }: { searchParams: Sear
   const admin = createAdminClient()
   let query = admin
     .from('tenants')
-    .select('id, name, slug, active, created_at')
+    .select('id, name, slug, active, created_at, custom_domain')
     .order('name')
 
   if (q) query = query.or(`name.ilike.%${q}%,slug.ilike.%${q}%`)
@@ -75,14 +76,24 @@ export default async function TenantsPage({ searchParams }: { searchParams: Sear
                     <p className="text-xs text-muted-foreground">
                       {tenant.slug}
                       {!tenant.active && ' · inactivo'}
+                      {tenant.custom_domain && ` · ${tenant.custom_domain}`}
                     </p>
                   </div>
                 </div>
-                <div className="text-right text-xs text-muted-foreground">
-                  <p>{memberCount.get(tenant.id) ?? 0} miembros</p>
-                  <p>
-                    Creado <FormattedTime value={tenant.created_at} variant="date" />
-                  </p>
+                <div className="flex items-center gap-4">
+                  <div className="hidden text-right text-xs text-muted-foreground sm:block">
+                    <p>{memberCount.get(tenant.id) ?? 0} miembros</p>
+                    <p>
+                      Creado <FormattedTime value={tenant.created_at} variant="date" />
+                    </p>
+                  </div>
+                  <Link
+                    href={`/a/tenants/${tenant.id}/domains`}
+                    className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <Globe className="h-3.5 w-3.5" />
+                    Dominios
+                  </Link>
                 </div>
               </CardContent>
             </Card>

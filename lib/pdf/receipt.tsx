@@ -1,4 +1,5 @@
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
+import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer'
+import type { PdfBranding } from './branding'
 
 export type ReceiptData = {
   receiptNumber: string
@@ -12,27 +13,46 @@ export type ReceiptData = {
   reference: string | null
   allocations: Array<{ conceptName: string; amount: number }>
   issuedAt: string
+  branding?: PdfBranding
 }
+
+const DEFAULT_PRIMARY = '#1a1a1a'
+const DEFAULT_ACCENT = '#555555'
 
 const styles = StyleSheet.create({
   page: {
     fontFamily: 'Helvetica',
     fontSize: 10,
     paddingTop: 40,
-    paddingBottom: 50,
+    paddingBottom: 60,
     paddingHorizontal: 40,
     color: '#1a1a1a',
+  },
+  brandStrip: {
+    height: 6,
+    marginBottom: 16,
+    borderRadius: 2,
   },
   header: {
     marginBottom: 24,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    borderBottom: '2px solid #1a1a1a',
     paddingBottom: 12,
   },
   headerLeft: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  logo: {
+    width: 48,
+    height: 48,
+    objectFit: 'contain',
+  },
+  headerText: {
+    flexDirection: 'column',
   },
   institutionName: {
     fontSize: 18,
@@ -47,7 +67,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: 'Helvetica-Bold',
     textAlign: 'right',
-    color: '#1a1a1a',
   },
   receiptLabel: {
     fontSize: 9,
@@ -80,7 +99,6 @@ const styles = StyleSheet.create({
   },
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#1a1a1a',
     color: '#fff',
     padding: '6 10',
     borderRadius: '4 4 0 0',
@@ -110,7 +128,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: '8 10',
     backgroundColor: '#f5f5f5',
-    borderTop: '1.5px solid #1a1a1a',
     borderRadius: '0 0 4 4',
   },
   totalLabel: {
@@ -129,14 +146,20 @@ const styles = StyleSheet.create({
     bottom: 30,
     left: 40,
     right: 40,
-    borderTop: '0.5px solid #ccc',
     paddingTop: 6,
+  },
+  footerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   footerText: {
     fontSize: 8,
     color: '#888',
+  },
+  footerSupport: {
+    fontSize: 8,
+    color: '#666',
+    marginTop: 2,
   },
 })
 
@@ -149,19 +172,42 @@ const METHOD_LABELS: Record<string, string> = {
 
 export function ReceiptPDF({ data }: { data: ReceiptData }) {
   const methodLabel = METHOD_LABELS[data.method] ?? data.method
+  const primary = data.branding?.primaryHex ?? DEFAULT_PRIMARY
+  const accent = data.branding?.accentHex ?? DEFAULT_ACCENT
+  const logoBytes = data.branding?.logoBytes ?? null
+  const supportEmail = data.branding?.supportEmail ?? null
+  const supportUrl = data.branding?.supportUrl ?? null
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        {/* Branded color strip across the top */}
+        <View style={[styles.brandStrip, { backgroundColor: primary }]} />
+
         {/* Header */}
-        <View style={styles.header}>
+        <View
+          style={[
+            styles.header,
+            { borderBottom: `2px solid ${primary}` },
+          ]}
+        >
           <View style={styles.headerLeft}>
-            <Text style={styles.institutionName}>{data.institutionName}</Text>
-            <Text style={styles.reportTitle}>Recibo de Pago</Text>
+            {logoBytes && (
+              // Pass bytes directly — @react-pdf/renderer accepts Uint8Array / Buffer.
+              <Image style={styles.logo} src={logoBytes as unknown as string} />
+            )}
+            <View style={styles.headerText}>
+              <Text style={styles.institutionName}>{data.institutionName}</Text>
+              <Text style={[styles.reportTitle, { color: accent }]}>
+                Recibo de Pago
+              </Text>
+            </View>
           </View>
           <View>
             <Text style={styles.receiptLabel}>No. RECIBO</Text>
-            <Text style={styles.receiptNumber}>{data.receiptNumber}</Text>
+            <Text style={[styles.receiptNumber, { color: primary }]}>
+              {data.receiptNumber}
+            </Text>
           </View>
         </View>
 
@@ -195,7 +241,7 @@ export function ReceiptPDF({ data }: { data: ReceiptData }) {
 
         {/* Allocations Table */}
         <View style={styles.table}>
-          <View style={styles.tableHeader}>
+          <View style={[styles.tableHeader, { backgroundColor: primary }]}>
             <Text style={[styles.tableHeaderText, { flex: 3 }]}>Concepto</Text>
             <Text style={[styles.tableHeaderText, { flex: 1, textAlign: 'right' }]}>Monto</Text>
           </View>
@@ -218,18 +264,35 @@ export function ReceiptPDF({ data }: { data: ReceiptData }) {
               </Text>
             </View>
           )}
-          <View style={styles.totalRow}>
+          <View
+            style={[
+              styles.totalRow,
+              { borderTop: `1.5px solid ${primary}` },
+            ]}
+          >
             <Text style={styles.totalLabel}>Total</Text>
-            <Text style={styles.totalAmount}>
+            <Text style={[styles.totalAmount, { color: primary }]}>
               {data.currency} {data.amount.toFixed(2)}
             </Text>
           </View>
         </View>
 
         {/* Footer */}
-        <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{data.institutionName}</Text>
-          <Text style={styles.footerText}>Emitido: {data.issuedAt}</Text>
+        <View
+          style={[styles.footer, { borderTop: `0.5px solid ${accent}` }]}
+          fixed
+        >
+          <View style={styles.footerRow}>
+            <Text style={styles.footerText}>{data.institutionName}</Text>
+            <Text style={styles.footerText}>Emitido: {data.issuedAt}</Text>
+          </View>
+          {(supportEmail || supportUrl) && (
+            <Text style={styles.footerSupport}>
+              {supportEmail ? `Soporte: ${supportEmail}` : ''}
+              {supportEmail && supportUrl ? '  ·  ' : ''}
+              {supportUrl ?? ''}
+            </Text>
+          )}
         </View>
       </Page>
     </Document>

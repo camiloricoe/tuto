@@ -5,6 +5,7 @@ import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { ReceiptPDF, type ReceiptData } from '@/lib/pdf/receipt'
+import { resolveBrandingForPdf } from '@/lib/pdf/branding'
 
 export async function GET(req: NextRequest) {
   try {
@@ -75,9 +76,13 @@ export async function GET(req: NextRequest) {
       }
     })
 
+    // Resolve tenant branding (logo bytes, colors, support contacts).
+    // Never throws — falls back to TUTO defaults if anything is missing.
+    const branding = await resolveBrandingForPdf(tenantId, tenantRes.data.name)
+
     const data: ReceiptData = {
       receiptNumber: payment.id.slice(0, 8).toUpperCase(),
-      institutionName: tenantRes.data.name,
+      institutionName: branding.tenantName,
       studentName: student?.full_name ?? 'Estudiante',
       documentNumber: student?.document_number ?? null,
       paymentDate: payment.paid_on,
@@ -90,6 +95,7 @@ export async function GET(req: NextRequest) {
         dateStyle: 'long',
         timeStyle: 'short',
       }),
+      branding,
     }
 
     const buffer = await renderToBuffer(ReceiptPDF({ data }))
