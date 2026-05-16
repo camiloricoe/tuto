@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '@/lib/supabase/database.types'
 
 // These tests use the ANON key (not service role) to verify RLS prevents
 // public reads of tenant-scoped data. They run against the configured
@@ -12,7 +13,7 @@ const skip = !url || !anonKey
 const itIfReachable = skip ? it.skip : it
 
 describe('RLS — anon client cannot read sensitive tables', () => {
-  let anon: ReturnType<typeof createClient>
+  let anon: SupabaseClient<Database>
 
   beforeAll(() => {
     anon = createClient(url, anonKey, { auth: { persistSession: false } })
@@ -62,14 +63,18 @@ describe('RLS — anon client cannot read sensitive tables', () => {
   })
 
   itIfReachable('cannot insert into tenants with no auth', async () => {
-    const { error } = await anon.from('tenants').insert({ name: 'Pwn', slug: 'pwn' })
+    const { error } = await anon
+      .from('tenants')
+      .insert({ name: 'Pwn', slug: 'pwn', subdomain: 'pwn-attempt' })
     expect(error).toBeTruthy()
   })
 
   itIfReachable('auth.users table is not exposed to PostgREST', async () => {
-    // The auth schema is not exposed; trying to query from public-only PostgREST
+    // The auth schema is not exposed; querying a non-existent public table
     // should fail with "relation not found" or permission denied.
-    const { data, error } = await anon.from('users').select('id').limit(1)
+    // Cast to bypass type safety — we are intentionally querying an invalid table name.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (anon as any).from('users').select('id').limit(1)
     if (data) expect(data.length).toBe(0)
     if (error) expect(error.message).toMatch(/permission|does not exist|relation|could not find/i)
   })

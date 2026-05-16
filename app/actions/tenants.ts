@@ -23,10 +23,18 @@ export async function createTenantAction(_prevState: unknown, formData: FormData
 
   const admin = createAdminClient()
 
+  // Derive subdomain from slug (subdomain is NOT NULL UNIQUE; defaults to a
+  // valid DNS label generated from the slug).
+  const subdomain = parsed.data.slug
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 63) || 'tenant'
+
   // Create tenant
   const { data: tenant, error } = await admin
     .from('tenants')
-    .insert({ name: parsed.data.name, slug: parsed.data.slug })
+    .insert({ name: parsed.data.name, slug: parsed.data.slug, subdomain })
     .select()
     .single()
 

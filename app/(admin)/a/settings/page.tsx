@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -61,6 +62,22 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-semibold">Configuracion</h1>
+
+      {/* Branding */}
+      <section className="space-y-4">
+        <Link href="/a/settings/branding" className="block">
+          <Card className="glass transition-colors hover:bg-accent/30">
+            <CardHeader>
+              <CardTitle className="text-base">Branding y marca</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Personaliza el logo, favicon, colores y mensajes de la institución.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+      </section>
 
       {/* Academic Periods */}
       <section className="space-y-4">

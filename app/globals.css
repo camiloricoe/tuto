@@ -2,6 +2,27 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Per-tenant brand variables.
+ *
+ * `components/brand/brand-provider.tsx` injects an inline `<style>` tag into
+ * `<head>` that sets `--brand-primary` (and optionally `--brand-accent`) on
+ * `:root`, in Tailwind/shadcn HSL token format ("H S% L%"). When a tenant has
+ * branding configured, `--primary` and `--ring` are also overridden in that
+ * same inline style so existing shadcn utilities (bg-primary, ring-primary,
+ * text-primary, etc.) automatically pick up the tenant color.
+ *
+ * The defaults below are the apex/no-tenant fallbacks. Components that want
+ * to read the tenant color directly can use `var(--brand-primary)`.
+ * `--brand-logo-h` is the configured logo height in px, available for
+ * components that want to size around the brand mark.
+ */
+:root {
+  --brand-primary: 221 83% 53%;
+  --brand-accent: 180 50% 40%;
+  --brand-logo-h: 48px;
+}
+
 @theme {
   /* Apple-inspired liquid glass palette — light */
   --color-background: oklch(0.985 0.002 247);
