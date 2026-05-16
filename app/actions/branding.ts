@@ -4,7 +4,6 @@ import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 
 import { requireSession } from '@/lib/auth/session'
-import { requirePermission } from '@/lib/auth/permissions'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { logActivity } from '@/lib/audit/activity'
 import {
@@ -20,6 +19,7 @@ import { revalidateTenantResolution } from '@/lib/tenant/revalidate'
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 const HSL_RE = /^\d{1,3} \d{1,3}% \d{1,3}%$/
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 const LOGO_MAX_BYTES = 2 * 1024 * 1024 // 2MB
 const FAVICON_MAX_BYTES = 200 * 1024 // 200KB
@@ -113,16 +113,42 @@ async function getTenantSubdomain(tenantId: string): Promise<string | null> {
   return data?.subdomain ?? null
 }
 
-async function requireBrandingAccess() {
+/**
+ * Authorization for branding mutations.
+ * Super admin → can write ANY tenant.
+ * Tenant admin → can write only their own.
+ */
+async function requireBrandingAccessFor(rawTenantId: unknown) {
   const session = await requireSession()
-  if (!session.activeTenantId) {
-    throw new Error('No hay tenant activo')
+  const tenantId = typeof rawTenantId === 'string' ? rawTenantId.trim() : ''
+  if (!UUID_RE.test(tenantId)) {
+    throw new Error('tenantId requerido')
   }
-  // Per task spec: admin/super_admin only. The codebase uses tenants:write
-  // (granted exclusively to admin + super_admin per seed/migration) as the
-  // tenant-level write gate; we keep parity by checking it here.
-  await requirePermission('tenants:write')
-  return session
+
+  if (session.isSuperAdmin) {
+    return { session, tenantId }
+  }
+
+  const admin = createAdminClient()
+  const { data: roleMatch } = await admin
+    .from('user_roles')
+    .select('id, roles!inner(code)')
+    .eq('user_id', session.userId)
+    .eq('tenant_id', tenantId)
+    .is('revoked_at', null)
+    .limit(20)
+
+  type RoleRow = { id: string; roles: { code: string } | { code: string }[] }
+  const codes = ((roleMatch ?? []) as RoleRow[]).flatMap((r) => {
+    const rs = Array.isArray(r.roles) ? r.roles : [r.roles]
+    return rs.map((x) => x?.code).filter(Boolean) as string[]
+  })
+
+  if (!codes.includes('admin') && !codes.includes('super_admin')) {
+    throw new Error('No tienes permiso para editar este tenant')
+  }
+
+  return { session, tenantId }
 }
 
 // ─── Update Action ──────────────────────────────────────────────────────────
@@ -136,8 +162,9 @@ export async function updateBrandingAction(
   formData: FormData,
 ): Promise<BrandingActionResult> {
   try {
-    const session = await requireBrandingAccess()
-    const tenantId = session.activeTenantId as string
+    const { session, tenantId } = await requireBrandingAccessFor(
+      formData.get('tenantId'),
+    )
 
     const raw = {
       primary_hsl: formData.get('primary_hsl'),
@@ -157,7 +184,6 @@ export async function updateBrandingAction(
       }
     }
 
-    // Build patch with explicit nulls allowed (so clearing a field works)
     const patch: Record<string, string | null> = {}
     for (const [key, value] of Object.entries(parsed.data)) {
       if (value === undefined) continue
@@ -177,6 +203,7 @@ export async function updateBrandingAction(
     })
 
     revalidatePath('/a/settings/branding')
+    revalidatePath(`/a/tenants/${tenantId}/branding`)
     const subdomain = await getTenantSubdomain(tenantId)
     if (subdomain) revalidateTenantResolution(subdomain)
 
@@ -196,8 +223,9 @@ async function handleAssetUpload(
   kind: 'logo' | 'favicon',
 ): Promise<BrandingActionResult> {
   try {
-    const session = await requireBrandingAccess()
-    const tenantId = session.activeTenantId as string
+    const { session, tenantId } = await requireBrandingAccessFor(
+      formData.get('tenantId'),
+    )
 
     const file = formData.get('file')
     if (!(file instanceof File) || file.size === 0) {
@@ -243,6 +271,7 @@ async function handleAssetUpload(
     })
 
     revalidatePath('/a/settings/branding')
+    revalidatePath(`/a/tenants/${tenantId}/branding`)
     const subdomain = await getTenantSubdomain(tenantId)
     if (subdomain) revalidateTenantResolution(subdomain)
 
@@ -270,11 +299,13 @@ export async function uploadFaviconAction(
 // ─── Removal Helpers ────────────────────────────────────────────────────────
 
 async function handleAssetRemoval(
+  formData: FormData,
   kind: 'logo' | 'favicon',
 ): Promise<BrandingActionResult> {
   try {
-    const session = await requireBrandingAccess()
-    const tenantId = session.activeTenantId as string
+    const { session, tenantId } = await requireBrandingAccessFor(
+      formData.get('tenantId'),
+    )
 
     const admin = createAdminClient()
     const { data: current } = await admin
@@ -314,6 +345,7 @@ async function handleAssetRemoval(
     })
 
     revalidatePath('/a/settings/branding')
+    revalidatePath(`/a/tenants/${tenantId}/branding`)
     const subdomain = await getTenantSubdomain(tenantId)
     if (subdomain) revalidateTenantResolution(subdomain)
 
@@ -326,10 +358,14 @@ async function handleAssetRemoval(
   }
 }
 
-export async function removeLogoAction(): Promise<BrandingActionResult> {
-  return handleAssetRemoval('logo')
+export async function removeLogoAction(
+  formData: FormData,
+): Promise<BrandingActionResult> {
+  return handleAssetRemoval(formData, 'logo')
 }
 
-export async function removeFaviconAction(): Promise<BrandingActionResult> {
-  return handleAssetRemoval('favicon')
+export async function removeFaviconAction(
+  formData: FormData,
+): Promise<BrandingActionResult> {
+  return handleAssetRemoval(formData, 'favicon')
 }

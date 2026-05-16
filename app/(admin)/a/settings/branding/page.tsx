@@ -35,6 +35,7 @@ export default async function BrandingSettingsPage() {
       </header>
 
       <BrandingForm
+        tenantId={session.activeTenantId}
         initial={{
           logo_url: branding?.logo_url ?? null,
           favicon_url: branding?.favicon_url ?? null,

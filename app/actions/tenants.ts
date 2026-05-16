@@ -1,12 +1,15 @@
 'use server'
 
+import { z } from 'zod'
 import { cookies } from 'next/headers'
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { logActivity } from '@/lib/audit/activity'
 import { createTenantSchema } from '@/lib/validators/auth'
+import { revalidateTenantResolution } from '@/lib/tenant/revalidate'
 
 export async function createTenantAction(_prevState: unknown, formData: FormData) {
   const session = await requireSession()
@@ -79,6 +82,99 @@ export async function createTenantAction(_prevState: unknown, formData: FormData
   })
 
   return { success: true, tenantId: tenant.id }
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const SUBDOMAIN_RE = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/
+
+const updateTenantSchema = z.object({
+  name: z.string().trim().min(1, 'Nombre requerido').max(120),
+  subdomain: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(1, 'Subdomain requerido')
+    .max(63)
+    .regex(SUBDOMAIN_RE, 'Subdomain invalido (solo a-z, 0-9, guion)'),
+  active: z.boolean(),
+})
+
+export type UpdateTenantResult =
+  | { success: true }
+  | { error: string }
+
+export async function updateTenantAction(
+  _prev: unknown,
+  formData: FormData,
+): Promise<UpdateTenantResult> {
+  const session = await requireSession()
+  if (!session.isSuperAdmin) {
+    return { error: 'Solo super_admin puede editar tenants' }
+  }
+
+  const tenantId = (formData.get('tenantId') as string | null)?.trim() ?? ''
+  if (!UUID_RE.test(tenantId)) {
+    return { error: 'tenantId invalido' }
+  }
+
+  const parsed = updateTenantSchema.safeParse({
+    name: formData.get('name') ?? '',
+    subdomain: formData.get('subdomain') ?? '',
+    active: formData.get('active') === 'on' || formData.get('active') === 'true',
+  })
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Datos invalidos' }
+  }
+
+  const admin = createAdminClient()
+
+  // Block subdomain collision
+  const { data: collision } = await admin
+    .from('tenants')
+    .select('id')
+    .eq('subdomain', parsed.data.subdomain)
+    .neq('id', tenantId)
+    .maybeSingle()
+  if (collision) {
+    return { error: 'Ese subdomain ya esta en uso' }
+  }
+
+  const { data: previous } = await admin
+    .from('tenants')
+    .select('name, subdomain, active')
+    .eq('id', tenantId)
+    .maybeSingle()
+
+  const { error } = await admin
+    .from('tenants')
+    .update({
+      name: parsed.data.name,
+      subdomain: parsed.data.subdomain,
+      active: parsed.data.active,
+    })
+    .eq('id', tenantId)
+
+  if (error) {
+    if (error.code === '23505') return { error: 'Ese subdomain ya esta en uso' }
+    return { error: 'No se pudo actualizar el tenant' }
+  }
+
+  await logActivity({
+    tenantId,
+    actorUserId: session.userId,
+    actionCode: 'tenant.updated',
+    resourceType: 'tenant',
+    resourceId: tenantId,
+    summary: `Tenant actualizado: ${parsed.data.name}`,
+    metadata: { previous, next: parsed.data },
+  })
+
+  revalidatePath(`/a/tenants/${tenantId}`)
+  revalidatePath('/a/tenants')
+  if (previous?.subdomain) revalidateTenantResolution(previous.subdomain)
+  revalidateTenantResolution(parsed.data.subdomain)
+
+  return { success: true }
 }
 
 export async function switchActiveTenantAction(tenantId: string) {

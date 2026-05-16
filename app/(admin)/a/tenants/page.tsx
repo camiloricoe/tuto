@@ -4,7 +4,7 @@ import { requireSuperAdmin } from '@/lib/auth/permissions'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Card, CardContent } from '@/components/ui/card'
 import { FormattedTime } from '@/components/shared/formatted-time'
-import { Search, Building2, Globe } from 'lucide-react'
+import { Search, Building2, Globe, ArrowRight } from 'lucide-react'
 import { CreateTenantForm } from './create-form'
 
 type SearchParams = Promise<{ q?: string }>
@@ -72,7 +72,12 @@ export default async function TenantsPage({ searchParams }: { searchParams: Sear
                     <Building2 className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="font-medium">{tenant.name}</p>
+                    <Link
+                      href={`/a/tenants/${tenant.id}` as never}
+                      className="font-medium hover:underline"
+                    >
+                      {tenant.name}
+                    </Link>
                     <p className="text-xs text-muted-foreground">
                       {tenant.slug}
                       {!tenant.active && ' · inactivo'}
@@ -88,11 +93,18 @@ export default async function TenantsPage({ searchParams }: { searchParams: Sear
                     </p>
                   </div>
                   <Link
-                    href={`/a/tenants/${tenant.id}/domains`}
+                    href={`/a/tenants/${tenant.id}/domains` as never}
                     className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
                   >
                     <Globe className="h-3.5 w-3.5" />
                     Dominios
+                  </Link>
+                  <Link
+                    href={`/a/tenants/${tenant.id}` as never}
+                    className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+                  >
+                    Abrir
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 </div>
               </CardContent>

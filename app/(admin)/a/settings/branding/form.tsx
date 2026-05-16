@@ -159,7 +159,13 @@ function ColorField({
 
 // ─── Main Form ──────────────────────────────────────────────────────────────
 
-export function BrandingForm({ initial }: { initial: BrandingFormInitial }) {
+export function BrandingForm({
+  tenantId,
+  initial,
+}: {
+  tenantId: string
+  initial: BrandingFormInitial
+}) {
   const [logoUrl, setLogoUrl] = useState(initial.logo_url)
   const [faviconUrl, setFaviconUrl] = useState(initial.favicon_url)
   const [primaryHsl, setPrimaryHsl] = useState(initial.primary_hsl)
@@ -205,6 +211,7 @@ export function BrandingForm({ initial }: { initial: BrandingFormInitial }) {
     }
 
     const fd = new FormData()
+    fd.set('tenantId', tenantId)
     fd.set('primary_hsl', primaryHsl)
     fd.set('accent_hsl', accentHsl)
     fd.set('login_message', loginMessage)
@@ -234,6 +241,7 @@ export function BrandingForm({ initial }: { initial: BrandingFormInitial }) {
     setUploadingLogo(true)
     try {
       const fd = new FormData()
+      fd.set('tenantId', tenantId)
       fd.set('file', file)
       const res = await uploadLogoAction(fd)
       if (res.success) {
@@ -259,6 +267,7 @@ export function BrandingForm({ initial }: { initial: BrandingFormInitial }) {
     setUploadingFavicon(true)
     try {
       const fd = new FormData()
+      fd.set('tenantId', tenantId)
       fd.set('file', file)
       const res = await uploadFaviconAction(fd)
       if (res.success) {
@@ -276,7 +285,9 @@ export function BrandingForm({ initial }: { initial: BrandingFormInitial }) {
   async function handleLogoRemove() {
     setUploadingLogo(true)
     try {
-      const res = await removeLogoAction()
+      const fd = new FormData()
+      fd.set('tenantId', tenantId)
+      const res = await removeLogoAction(fd)
       if (res.success) {
         setLogoUrl(null)
         toast.success('Logo eliminado')
@@ -291,7 +302,9 @@ export function BrandingForm({ initial }: { initial: BrandingFormInitial }) {
   async function handleFaviconRemove() {
     setUploadingFavicon(true)
     try {
-      const res = await removeFaviconAction()
+      const fd = new FormData()
+      fd.set('tenantId', tenantId)
+      const res = await removeFaviconAction(fd)
       if (res.success) {
         setFaviconUrl(null)
         toast.success('Favicon eliminado')
