@@ -37,7 +37,7 @@ test.describe('Branding update full round-trip', () => {
       page.getByRole('heading', { name: 'Branding', level: 1 }),
     ).toBeVisible({ timeout: 15_000 })
 
-    const primary = page.getByLabel('Color primario (HSL)')
+    const primary = page.locator('#primary_hsl')
 
     // 1. Capture original value for cleanup.
     const original = (await primary.inputValue()).trim()
@@ -55,13 +55,13 @@ test.describe('Branding update full round-trip', () => {
 
       // 3. Reload and verify persisted.
       await page.reload()
-      await expect(page.getByLabel('Color primario (HSL)')).toHaveValue(target, {
+      await expect(page.locator('#primary_hsl')).toHaveValue(target, {
         timeout: 10_000,
       })
     } finally {
       // 4. Cleanup — restore the original value, even if assertions failed.
       try {
-        const cleanupPrimary = page.getByLabel('Color primario (HSL)')
+        const cleanupPrimary = page.locator('#primary_hsl')
         await cleanupPrimary.fill(original || '221 83% 53%')
         await page
           .getByRole('button', { name: /guardar cambios/i })
