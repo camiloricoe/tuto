@@ -2,7 +2,13 @@ import { createServerClient } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server'
 import { parseHostname, resolveTenant } from '@/lib/tenant/resolver'
 
-const PUBLIC_ROUTES = ['/login', '/activate', '/forgot-password', '/reset-password']
+const PUBLIC_ROUTES = [
+  '/login',
+  '/activate',
+  '/forgot-password',
+  '/reset-password',
+  '/api/health/ping', // used by custom-domain verification flow
+]
 const TENANT_COOKIE = 'tuto-active-tenant'
 const NOT_FOUND_SUBDOMAIN_PATH = '/not-found-subdomain'
 
