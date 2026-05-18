@@ -8,6 +8,8 @@ import { CopyButton } from '@/components/shared/copy-button'
 import { ticketsToMarkdown } from '@/lib/feedback/markdown'
 import { FEEDBACK_STATUSES, FEEDBACK_TYPES, FEEDBACK_PRIORITIES } from '@/lib/validators/feedback'
 import { Bug, Lightbulb, HelpCircle, ArrowRight } from 'lucide-react'
+import { FeedbackQuickActions } from './quick-actions'
+import { FeedbackBulkActions } from './bulk-actions'
 
 type SearchParams = Promise<{ status?: string; type?: string; priority?: string }>
 
@@ -68,6 +70,14 @@ export default async function FeedbackListPage({ searchParams }: { searchParams:
 
   const allMarkdown = ticketsToMarkdown(enriched)
 
+  // Counts by status for bulk-action affordances (only the actionable stages).
+  const statusCounts = { open: 0, triaged: 0, in_progress: 0 }
+  for (const t of enriched) {
+    if (t.status === 'open') statusCounts.open++
+    else if (t.status === 'triaged') statusCounts.triaged++
+    else if (t.status === 'in_progress') statusCounts.in_progress++
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -102,6 +112,8 @@ export default async function FeedbackListPage({ searchParams }: { searchParams:
         </button>
       </form>
 
+      <FeedbackBulkActions counts={statusCounts} />
+
       <div className="grid gap-3">
         {enriched.length === 0 ? (
           <p className="text-muted-foreground">No hay tickets.</p>
@@ -132,7 +144,10 @@ export default async function FeedbackListPage({ searchParams }: { searchParams:
                         </p>
                       </div>
                     </div>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <div className="flex items-center gap-2 shrink-0">
+                      <FeedbackQuickActions ticketId={t.id} status={t.status} />
+                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                    </div>
                   </CardContent>
                 </Card>
               </Link>

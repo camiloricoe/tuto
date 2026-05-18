@@ -108,6 +108,111 @@ export async function updateFeedbackStatusAction(_prev: unknown, formData: FormD
   return { success: true }
 }
 
+// Status flow: open → triaged → in_progress → resolved. declined is terminal.
+const NEXT_STATUS: Record<string, string> = {
+  open: 'triaged',
+  triaged: 'in_progress',
+  in_progress: 'resolved',
+}
+
+export async function advanceFeedbackStatusAction(
+  _prev: unknown,
+  formData: FormData,
+) {
+  const session = await requireSession()
+  await requirePermission('feedback:manage')
+
+  const ticketId = (formData.get('ticketId') as string | null)?.trim() ?? ''
+  if (!ticketId) return { error: 'ticketId requerido' }
+
+  const admin = createAdminClient()
+  const { data: row } = await admin
+    .from('feedback_tickets')
+    .select('id, status, tenant_id')
+    .eq('id', ticketId)
+    .maybeSingle()
+  if (!row) return { error: 'Ticket no encontrado' }
+
+  const next = NEXT_STATUS[row.status]
+  if (!next) return { error: 'No hay siguiente estado para "' + row.status + '"' }
+
+  const update: { status: string; resolved_at?: string | null } = { status: next }
+  if (next === 'resolved') update.resolved_at = new Date().toISOString()
+
+  const { error } = await admin
+    .from('feedback_tickets')
+    .update(update)
+    .eq('id', ticketId)
+  if (error) return { error: 'No se pudo avanzar el ticket' }
+
+  await logActivity({
+    tenantId: row.tenant_id ?? session.activeTenantId ?? '00000000-0000-0000-0000-000000000000',
+    actorUserId: session.userId,
+    actionCode: 'feedback.status_advanced',
+    resourceType: 'feedback',
+    resourceId: ticketId,
+    summary: `Ticket ${row.status} → ${next}`,
+    metadata: { from: row.status, to: next },
+  })
+
+  revalidatePath(`/a/feedback/${ticketId}`)
+  revalidatePath('/a/feedback')
+  return { success: true }
+}
+
+export async function bulkAdvanceFeedbackStatusAction(
+  _prev: unknown,
+  formData: FormData,
+) {
+  const session = await requireSession()
+  await requirePermission('feedback:manage')
+
+  const fromStatus = (formData.get('fromStatus') as string | null)?.trim() ?? ''
+  if (!NEXT_STATUS[fromStatus]) {
+    return { error: 'Estado origen invalido' }
+  }
+  const toStatus = NEXT_STATUS[fromStatus]
+
+  const admin = createAdminClient()
+
+  // Scope: super_admin sees all tenants; tenant admin only their own
+  let q = admin
+    .from('feedback_tickets')
+    .select('id, tenant_id')
+    .eq('status', fromStatus)
+  if (!session.isSuperAdmin && session.activeTenantId) {
+    q = q.eq('tenant_id', session.activeTenantId)
+  }
+
+  const { data: rows } = await q
+  if (!rows || rows.length === 0) {
+    return { success: true, count: 0 }
+  }
+
+  const ids = rows.map((r) => r.id)
+  const update: { status: string; resolved_at?: string | null } = { status: toStatus }
+  if (toStatus === 'resolved') update.resolved_at = new Date().toISOString()
+
+  const { error } = await admin
+    .from('feedback_tickets')
+    .update(update)
+    .in('id', ids)
+  if (error) return { error: 'No se pudo actualizar en bloque' }
+
+  await logActivity({
+    tenantId: session.activeTenantId ?? '00000000-0000-0000-0000-000000000000',
+    actorUserId: session.userId,
+    actionCode: 'feedback.bulk_advanced',
+    resourceType: 'feedback',
+    resourceId: 'bulk',
+    summary: `${rows.length} ticket(s) ${fromStatus} → ${toStatus}`,
+    metadata: { from: fromStatus, to: toStatus, count: rows.length },
+  })
+
+  revalidatePath('/a/feedback')
+  return { success: true, count: rows.length }
+}
+
 export async function addFeedbackCommentAction(_prev: unknown, formData: FormData) {
   const session = await requireSession()
 

@@ -1,16 +1,21 @@
 import 'server-only'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import path from 'path'
 
 const BUCKET = 'tenant-assets'
 
+// Use the admin (service role) client for storage operations. The calling
+// server action MUST validate authorization first — admin client bypasses
+// storage RLS, which is correct here because the policy expression had to
+// JOIN through user_roles and roles, both of which have their own RLS that
+// silently filtered the EXISTS subquery to empty rows under SSR auth.
 export async function uploadTenantAsset(
   tenantId: string,
   file: File | Buffer,
   kind: 'logo' | 'favicon',
   filename: string,
 ): Promise<{ publicUrl: string; path: string }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const ext = path.extname(filename).toLowerCase() || '.png'
   const objectPath = `${tenantId}/${kind}-${Date.now()}${ext}`
@@ -39,7 +44,7 @@ export async function uploadTenantAsset(
 }
 
 export async function deleteTenantAsset(objectPath: string): Promise<void> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { error } = await supabase.storage.from(BUCKET).remove([objectPath])
   if (error) throw error
 }

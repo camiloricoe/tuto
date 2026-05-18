@@ -9,6 +9,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       defaultTheme="system"
       enableSystem
       disableTransitionOnChange
+      storageKey="tuto-theme"
     >
       {children}
     </NextThemesProvider>

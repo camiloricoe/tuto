@@ -22,16 +22,16 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={inter.variable} suppressHydrationWarning>
-      <head>
+      <body>
         {/*
-          BrandProvider injects per-tenant CSS variables and the tenant favicon
-          before children render — avoiding FOUC. Apex/unknown hosts emit
-          nothing and the default theme from globals.css applies. ThemeProvider
-          (dark/light toggle) is a separate concern and wraps the tree below.
+          BrandProvider renders as the first body child (instead of in <head>)
+          so React doesn't reconcile <head> children — head reconciliation was
+          racing with next-themes' FOUC-prevention script and resetting the
+          user's saved theme on every navigation. CSS vars in body-rendered
+          <style> apply globally just the same; favicon <link> is also accepted
+          in body by modern browsers.
         */}
         <BrandProvider />
-      </head>
-      <body>
         <ThemeProvider>
           {children}
           <Toaster richColors position="top-right" />
