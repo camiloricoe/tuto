@@ -166,7 +166,14 @@ export async function updateTenantAction(
     resourceType: 'tenant',
     resourceId: tenantId,
     summary: `Tenant actualizado: ${parsed.data.name}`,
-    metadata: { previous, next: parsed.data },
+    metadata: {
+      prev_name: previous?.name ?? null,
+      prev_subdomain: previous?.subdomain ?? null,
+      prev_active: previous?.active ?? null,
+      next_name: parsed.data.name,
+      next_subdomain: parsed.data.subdomain,
+      next_active: parsed.data.active,
+    },
   })
 
   revalidatePath(`/a/tenants/${tenantId}`)
