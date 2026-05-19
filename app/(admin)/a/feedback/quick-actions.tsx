@@ -2,7 +2,7 @@
 
 import { useTransition } from 'react'
 import { toast } from 'sonner'
-import { ChevronRight, Check, X } from 'lucide-react'
+import { ChevronRight, Check, X, Copy } from 'lucide-react'
 
 import {
   advanceFeedbackStatusAction,
@@ -18,9 +18,11 @@ const NEXT_LABEL: Record<string, string> = {
 export function FeedbackQuickActions({
   ticketId,
   status,
+  markdown,
 }: {
   ticketId: string
   status: string
+  markdown: string
 }) {
   const [pending, startTransition] = useTransition()
   const nextLabel = NEXT_LABEL[status]
@@ -58,8 +60,27 @@ export function FeedbackQuickActions({
     })
   }
 
+  async function handleCopy(e: React.MouseEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    try {
+      await navigator.clipboard.writeText(markdown)
+      toast.success('Copiado')
+    } catch {
+      toast.error('No se pudo copiar')
+    }
+  }
+
   return (
     <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={handleCopy}
+        title="Copiar como prompt"
+        className="inline-flex h-7 w-7 items-center justify-center rounded-md border bg-background text-muted-foreground hover:bg-accent hover:text-foreground"
+      >
+        <Copy className="h-3.5 w-3.5" />
+      </button>
       {!isTerminal && nextLabel && (
         <button
           type="button"

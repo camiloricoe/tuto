@@ -161,6 +161,12 @@ export async function logoutAction() {
 
   const supabase = await createClient()
   await supabase.auth.signOut()
+
+  // Clear the pinned tenant cookie so the next login resolves cleanly on
+  // the current subdomain instead of replaying a stale tenant context.
+  const cookieStore = await cookies()
+  cookieStore.delete(ACTIVE_TENANT_COOKIE)
+
   redirect('/login')
 }
 

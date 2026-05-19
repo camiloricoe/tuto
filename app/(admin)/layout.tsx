@@ -7,6 +7,8 @@ import { TenantSwitcher } from '@/components/shared/tenant-switcher'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { FeedbackWidget } from '@/components/shared/feedback-widget'
 import { getUnreadCountAction } from '@/app/actions/notifications'
+import { BrandLogo } from '@/components/brand/brand-logo'
+import { getBrandingByTenantId } from '@/lib/branding/queries'
 
 const baseAdminNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/a', icon: 'dashboard' },
@@ -59,6 +61,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const activeTenant = session.tenants.find((t) => t.id === session.activeTenantId)
   const unreadCount = await getUnreadCountAction()
 
+  // Fetch branding by active tenant id so the apex-host + cookie-switched
+  // tenant case still resolves a logo (hostname-based resolver returns null
+  // on apex). When no active tenant, branding stays null and the "TUTO"
+  // fallback renders.
+  const branding = session.activeTenantId
+    ? await getBrandingByTenantId(session.activeTenantId)
+    : null
+  const brandLabel = activeTenant?.name ?? 'TUTO'
+
   const adminNavItems: NavItem[] = session.isSuperAdmin
     ? [tenantsNavItem, ...baseAdminNavItems, healthNavItem]
     : baseAdminNavItems
@@ -67,7 +78,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="min-h-screen bg-background">
       <header className="glass-subtle sticky top-0 z-50 flex items-center justify-between border-b px-6 py-3">
         <div className="flex items-center gap-4">
-          <span className="text-lg font-semibold tracking-tight">TUTO</span>
+          {branding?.logo_url ? (
+            <BrandLogo
+              size="sm"
+              url={branding.logo_url}
+              alt={brandLabel}
+              className="h-7 w-auto"
+            />
+          ) : (
+            <span className="text-lg font-semibold tracking-tight">{brandLabel}</span>
+          )}
           <span className="text-sm text-muted-foreground">Admin</span>
           {session.isSuperAdmin && (
             <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-600">

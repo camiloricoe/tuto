@@ -32,6 +32,19 @@ export type BrandLogoProps = {
    * the resolved tenant name, falling back to "TUTO".
    */
   fallback?: string
+  /**
+   * Optional explicit logo URL. When provided, the resolver is bypassed and
+   * this URL is rendered directly (after the same HTTPS+supabase host
+   * validation). Use this when the hostname-based resolver cannot find the
+   * active tenant — e.g. a super admin on apex who has switched into a
+   * tenant via cookie. Pair with `alt` to control the alt text in that case.
+   */
+  url?: string | null
+  /**
+   * Optional explicit alt text. Defaults to the resolved tenant name, then
+   * `fallback`, then "TUTO".
+   */
+  alt?: string
 }
 
 /**
@@ -40,11 +53,49 @@ export type BrandLogoProps = {
  * supabase storage origin in `next.config.ts` — we already validate the URL
  * matches a known supabase host.
  */
-export async function BrandLogo({ size = 'md', className, fallback }: BrandLogoProps) {
+export async function BrandLogo({
+  size = 'md',
+  className,
+  fallback,
+  url,
+  alt,
+}: BrandLogoProps) {
   const { width, height, textClass } = SIZE_MAP[size]
+
+  // Explicit `url` bypasses the per-request hostname resolver. This is the
+  // path used by apex super admins who have switched into a tenant via the
+  // active-tenant cookie — the hostname is apex but we already know which
+  // tenant they're operating on.
+  if (url !== undefined) {
+    const altLabel = alt ?? fallback ?? 'TUTO'
+    if (isSafeLogoUrl(url)) {
+      return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={url}
+          alt={altLabel}
+          width={width}
+          height={height}
+          className={className}
+          style={{ objectFit: 'contain' }}
+          data-brand-logo=""
+        />
+      )
+    }
+    return (
+      <span
+        data-brand-logo-text=""
+        className={`inline-flex items-center font-semibold tracking-tight ${textClass}${className ? ` ${className}` : ''}`}
+        style={{ minHeight: height }}
+      >
+        {altLabel}
+      </span>
+    )
+  }
+
   const branding = await getCurrentBranding()
   const tenant = await getCurrentTenant()
-  const altLabel = tenant?.name ?? fallback ?? 'TUTO'
+  const altLabel = alt ?? tenant?.name ?? fallback ?? 'TUTO'
 
   if (isSafeLogoUrl(branding?.logo_url)) {
     return (

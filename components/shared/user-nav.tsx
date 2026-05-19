@@ -1,5 +1,6 @@
 'use client'
 
+import { useTransition } from 'react'
 import { LogOut, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,6 +21,8 @@ type UserNavProps = {
 }
 
 export function UserNav({ fullName, email, roles, tenantName }: UserNavProps) {
+  const [isPending, startTransition] = useTransition()
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -46,13 +49,21 @@ export function UserNav({ fullName, email, roles, tenantName }: UserNavProps) {
           {roles.join(', ')}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <form action={logoutAction}>
-            <button type="submit" className="flex w-full items-center gap-2 text-sm">
-              <LogOut className="h-4 w-4" />
-              Cerrar sesion
-            </button>
-          </form>
+        <DropdownMenuItem
+          disabled={isPending}
+          onSelect={(event) => {
+            // Prevent Radix from closing the menu before our action runs;
+            // we trigger the server action explicitly inside a transition so
+            // the click is not swallowed by the menu item's default behavior.
+            event.preventDefault()
+            startTransition(() => {
+              void logoutAction()
+            })
+          }}
+          className="flex w-full items-center gap-2 text-sm"
+        >
+          <LogOut className="h-4 w-4" />
+          Cerrar sesion
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

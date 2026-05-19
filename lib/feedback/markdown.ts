@@ -54,3 +54,17 @@ export function ticketsToMarkdown(tickets: TicketLike[]): string {
   if (tickets.length === 0) return '_No tickets._'
   return tickets.map(ticketToMarkdown).join('\n\n---\n\n')
 }
+
+export function numberedTicketsToMarkdown(tickets: TicketLike[]): string {
+  if (tickets.length === 0) return '_No tickets._'
+  return tickets
+    .map((t, i) => {
+      const body = ticketToMarkdown(t)
+      // Replace the first heading line ("## TYPE: title") with "# N. title"
+      // to give parallel agents a clean numbered top-level header per ticket.
+      const lines = body.split('\n')
+      lines[0] = `# ${i + 1}. ${t.title}`
+      return lines.join('\n')
+    })
+    .join('\n\n---\n\n')
+}

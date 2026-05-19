@@ -6,6 +6,8 @@ import { NotificationBell } from '@/components/shared/notification-bell'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { FeedbackWidget } from '@/components/shared/feedback-widget'
 import { getUnreadCountAction } from '@/app/actions/notifications'
+import { BrandLogo } from '@/components/brand/brand-logo'
+import { getBrandingByTenantId } from '@/lib/branding/queries'
 
 const studentNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/s', icon: 'dashboard' },
@@ -25,12 +27,27 @@ export default async function StudentLayout({ children }: { children: React.Reac
 
   const activeTenant = session.tenants.find((t) => t.id === session.activeTenantId)
   const unreadCount = await getUnreadCountAction()
+  // Branding resolved by active tenant id so apex + cookie-switched tenant
+  // (e.g. super admin) still gets the right logo. Falls back to "TUTO" text.
+  const branding = session.activeTenantId
+    ? await getBrandingByTenantId(session.activeTenantId)
+    : null
+  const brandLabel = activeTenant?.name ?? 'TUTO'
 
   return (
     <div className="min-h-screen bg-background">
       <header className="glass-subtle sticky top-0 z-50 flex items-center justify-between border-b px-6 py-3">
         <div className="flex items-center gap-4">
-          <span className="text-lg font-semibold tracking-tight">TUTO</span>
+          {branding?.logo_url ? (
+            <BrandLogo
+              size="sm"
+              url={branding.logo_url}
+              alt={brandLabel}
+              className="h-7 w-auto"
+            />
+          ) : (
+            <span className="text-lg font-semibold tracking-tight">{brandLabel}</span>
+          )}
           <span className="text-sm text-muted-foreground">Estudiante</span>
         </div>
         <div className="flex items-center gap-2">

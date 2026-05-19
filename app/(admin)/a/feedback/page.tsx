@@ -5,7 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { Card, CardContent } from '@/components/ui/card'
 import { FormattedTime } from '@/components/shared/formatted-time'
 import { CopyButton } from '@/components/shared/copy-button'
-import { ticketsToMarkdown } from '@/lib/feedback/markdown'
+import { ticketToMarkdown, numberedTicketsToMarkdown } from '@/lib/feedback/markdown'
 import { FEEDBACK_STATUSES, FEEDBACK_TYPES, FEEDBACK_PRIORITIES } from '@/lib/validators/feedback'
 import { Bug, Lightbulb, HelpCircle, ArrowRight } from 'lucide-react'
 import { FeedbackQuickActions } from './quick-actions'
@@ -68,7 +68,9 @@ export default async function FeedbackListPage({ searchParams }: { searchParams:
     tenant_name: t.tenant_id ? tenantById.get(t.tenant_id)?.name ?? null : null,
   }))
 
-  const allMarkdown = ticketsToMarkdown(enriched)
+  const openTickets = enriched.filter((t) => t.status === 'open')
+  const openCount = openTickets.length
+  const openMarkdown = numberedTicketsToMarkdown(openTickets)
 
   // Counts by status for bulk-action affordances (only the actionable stages).
   const statusCounts = { open: 0, triaged: 0, in_progress: 0 }
@@ -82,7 +84,9 @@ export default async function FeedbackListPage({ searchParams }: { searchParams:
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Feedback ({enriched.length})</h1>
-        <CopyButton text={allMarkdown} label="Copiar todos como prompt" />
+        {openCount > 0 ? (
+          <CopyButton text={openMarkdown} label={`Copiar ${openCount} abiertos como prompt`} />
+        ) : null}
       </div>
 
       <form method="get" className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-4">
@@ -145,7 +149,7 @@ export default async function FeedbackListPage({ searchParams }: { searchParams:
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <FeedbackQuickActions ticketId={t.id} status={t.status} />
+                      <FeedbackQuickActions ticketId={t.id} status={t.status} markdown={ticketToMarkdown(t)} />
                       <ArrowRight className="h-4 w-4 text-muted-foreground" />
                     </div>
                   </CardContent>
