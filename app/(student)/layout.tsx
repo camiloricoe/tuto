@@ -8,6 +8,8 @@ import { FeedbackWidget } from '@/components/shared/feedback-widget'
 import { getUnreadCountAction } from '@/app/actions/notifications'
 import { BrandLogo } from '@/components/brand/brand-logo'
 import { getBrandingByTenantId } from '@/lib/branding/queries'
+import { MilestoneWidget } from '@/components/onboarding/milestone-widget'
+import { getProgressForRole } from '@/lib/onboarding/progress'
 
 const studentNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/s', icon: 'dashboard' },
@@ -33,6 +35,17 @@ export default async function StudentLayout({ children }: { children: React.Reac
     ? await getBrandingByTenantId(session.activeTenantId)
     : null
   const brandLabel = activeTenant?.name ?? 'TUTO'
+
+  const onboardingProgress = session.roles.includes('student')
+    ? await getProgressForRole(
+        {
+          userId: session.userId,
+          tenantId: session.activeTenantId,
+          isSuperAdmin: session.isSuperAdmin,
+        },
+        'student',
+      )
+    : null
 
   return (
     <div className="min-h-screen bg-background">
@@ -64,6 +77,14 @@ export default async function StudentLayout({ children }: { children: React.Reac
       <div className="flex">
         <aside className="hidden md:flex md:w-56 md:flex-col md:border-r md:bg-background/50 min-h-[calc(100vh-57px)] shrink-0 px-2">
           <SidebarNav items={studentNavItems} />
+          {onboardingProgress && (
+            <div className="mt-auto">
+              <MilestoneWidget
+                progress={onboardingProgress}
+                welcomePath="/s/welcome"
+              />
+            </div>
+          )}
         </aside>
         <main className="flex-1 p-6">{children}</main>
       </div>

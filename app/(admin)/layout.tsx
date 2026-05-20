@@ -9,6 +9,9 @@ import { FeedbackWidget } from '@/components/shared/feedback-widget'
 import { getUnreadCountAction } from '@/app/actions/notifications'
 import { BrandLogo } from '@/components/brand/brand-logo'
 import { getBrandingByTenantId } from '@/lib/branding/queries'
+import { MilestoneWidget } from '@/components/onboarding/milestone-widget'
+import { getProgressForRole } from '@/lib/onboarding/progress'
+import { pickRoleForPortal } from '@/lib/onboarding/catalog'
 
 const baseAdminNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/a', icon: 'dashboard' },
@@ -74,6 +77,19 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     ? [tenantsNavItem, ...baseAdminNavItems, healthNavItem]
     : baseAdminNavItems
 
+  const onboardingRole = pickRoleForPortal(session.roles, '/a')
+  const onboardingProgress = onboardingRole
+    ? await getProgressForRole(
+        {
+          userId: session.userId,
+          tenantId:
+            onboardingRole === 'super_admin' ? null : session.activeTenantId,
+          isSuperAdmin: session.isSuperAdmin,
+        },
+        onboardingRole,
+      )
+    : null
+
   return (
     <div className="min-h-screen bg-background">
       <header className="glass-subtle sticky top-0 z-50 flex items-center justify-between border-b px-6 py-3">
@@ -114,6 +130,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="flex">
         <aside className="hidden md:flex md:w-56 md:flex-col md:border-r md:bg-background/50 min-h-[calc(100vh-57px)] shrink-0 px-2">
           <SidebarNav items={adminNavItems} />
+          {onboardingProgress && (
+            <div className="mt-auto">
+              <MilestoneWidget
+                progress={onboardingProgress}
+                welcomePath="/a/welcome"
+              />
+            </div>
+          )}
         </aside>
         <main className="flex-1 p-6">{children}</main>
       </div>

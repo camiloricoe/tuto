@@ -1896,6 +1896,38 @@ export type Database = {
           },
         ]
       }
+      user_milestone_dismissals: {
+        Row: {
+          dismissed_at: string
+          id: string
+          milestone_code: string
+          tenant_id: string | null
+          user_id: string
+        }
+        Insert: {
+          dismissed_at?: string
+          id?: string
+          milestone_code: string
+          tenant_id?: string | null
+          user_id: string
+        }
+        Update: {
+          dismissed_at?: string
+          id?: string
+          milestone_code?: string
+          tenant_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_milestone_dismissals_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       tenants_public: {
