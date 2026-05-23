@@ -76,7 +76,7 @@ export default async function CurriculumsPage() {
                   <p className="mt-1 text-sm text-muted-foreground">
                     {program?.name ?? 'Programa desconocido'}
                     {program?.code ? ` · ${program.code}` : ''} · {c.cycles} ciclos ·{' '}
-                    {c.subject_count} materias
+                    {c.subject_count} {terms.subject.plural.toLowerCase()}
                   </p>
                   {c.notes && (
                     <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{c.notes}</p>

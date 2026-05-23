@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getTenantTerms } from '@/lib/terminology/server'
 import {
   Card,
   CardContent,
@@ -46,7 +47,7 @@ export default async function TenantGeneralPage({
   if (!tenant) notFound()
 
   // Cheap counts via head + exact count
-  const [membersRes, programsRes, coursesRes] = await Promise.all([
+  const [membersRes, programsRes, coursesRes, terms] = await Promise.all([
     admin
       .from('user_tenant_memberships')
       .select('user_id', { count: 'exact', head: true })
@@ -62,6 +63,7 @@ export default async function TenantGeneralPage({
       .select('id', { count: 'exact', head: true })
       .eq('tenant_id', id)
       .is('deleted_at', null),
+    getTenantTerms(id),
   ])
 
   const memberCount = membersRes.count ?? 0
@@ -202,7 +204,7 @@ export default async function TenantGeneralPage({
               />
               <CountStat
                 icon={<BookOpen className="h-4 w-4" />}
-                label="Cursos"
+                label={terms.course.plural}
                 value={courseCount}
               />
             </div>

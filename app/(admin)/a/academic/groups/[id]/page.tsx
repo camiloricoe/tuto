@@ -10,6 +10,7 @@ import {
   getPublishedCurriculumsForProgram,
   getStudentsAvailableForGroup,
 } from '@/lib/db/groups'
+import { getTenantTerms } from '@/lib/terminology/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArchiveGroupButton } from './archive-button'
@@ -66,9 +67,10 @@ export default async function GroupDetailPage({
     | null
 
   const canWrite = session.permissions.has('groups:write')
-  const [subjects, members] = await Promise.all([
+  const [subjects, members, terms] = await Promise.all([
     getGroupSubjects(session.activeTenantId, group.id),
     getGroupMembers(session.activeTenantId, group.id),
+    getTenantTerms(session.activeTenantId),
   ])
 
   const needsSnapshot = !group.snapshotted_at && group.status === 'active'
@@ -135,7 +137,7 @@ export default async function GroupDetailPage({
           {curriculum && (
             <p className="inline-flex items-center gap-2 text-sm">
               <Camera className="h-4 w-4 text-primary" />
-              Pensum:{' '}
+              {terms.curriculum.singular}:{' '}
               <span className="font-medium">
                 {curriculum.name} (v{curriculum.version})
               </span>
@@ -162,7 +164,7 @@ export default async function GroupDetailPage({
               {group.snapshotted_at
                 ? 'El plan no tiene materias registradas.'
                 : needsSnapshot
-                  ? 'Aun no se ha aplicado un pensum. Usa el boton "Aplicar pensum" para copiar uno.'
+                  ? `Aun no se ha aplicado un ${terms.curriculum.singular.toLowerCase()}. Usa el boton "Aplicar ${terms.curriculum.singular.toLowerCase()}" para copiar uno.`
                   : 'Sin plan academico.'}
             </p>
           ) : (

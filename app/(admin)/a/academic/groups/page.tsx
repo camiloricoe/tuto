@@ -77,7 +77,7 @@ export default async function GroupsPage() {
                     </span>
                     {group.snapshotted_at && (
                       <span className="inline-flex items-center gap-1 text-primary">
-                        <Camera className="h-3 w-3" /> Pensum aplicado
+                        <Camera className="h-3 w-3" /> {terms.curriculum.singular} aplicado
                       </span>
                     )}
                   </div>

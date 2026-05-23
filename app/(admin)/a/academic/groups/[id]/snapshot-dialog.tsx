@@ -16,6 +16,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { snapshotCurriculumIntoGroupAction } from '@/app/actions/academic/groups'
+import { useTerms } from '@/components/terminology/terms-provider'
 
 type PublishedCurriculum = {
   id: string
@@ -29,6 +30,7 @@ type Props = {
 }
 
 export function SnapshotDialog({ groupId, publishedCurriculums }: Props) {
+  const terms = useTerms()
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [curriculumId, setCurriculumId] = useState('')
@@ -36,7 +38,7 @@ export function SnapshotDialog({ groupId, publishedCurriculums }: Props) {
 
   function handleApply() {
     if (!curriculumId) {
-      toast.error('Selecciona un pensum')
+      toast.error(`Selecciona un ${terms.curriculum.singular.toLowerCase()}`)
       return
     }
     startTransition(async () => {
@@ -46,7 +48,7 @@ export function SnapshotDialog({ groupId, publishedCurriculums }: Props) {
         return
       }
       const copied = res && 'copied' in res ? res.copied : 0
-      toast.success(`Pensum aplicado (${copied} materias copiadas)`)
+      toast.success(`${terms.curriculum.singular} aplicado (${copied} ${terms.subject.plural.toLowerCase()} copiadas)`)
       setOpen(false)
       setCurriculumId('')
       router.refresh()
@@ -57,20 +59,20 @@ export function SnapshotDialog({ groupId, publishedCurriculums }: Props) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-1">
-          <Camera className="h-4 w-4" /> Aplicar pensum
+          <Camera className="h-4 w-4" /> Aplicar {terms.curriculum.singular.toLowerCase()}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Aplicar pensum al grupo</DialogTitle>
+          <DialogTitle>Aplicar {terms.curriculum.singular.toLowerCase()} al grupo</DialogTitle>
           <DialogDescription>
-            Se copiaran las materias del pensum publicado al plan del grupo. Esta accion
+            Se copiaran las {terms.subject.plural.toLowerCase()} del {terms.curriculum.singular.toLowerCase()} publicado al plan del grupo. Esta accion
             no se puede deshacer.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2">
-          <Label htmlFor="snapshotCurriculumId">Pensum publicado</Label>
+          <Label htmlFor="snapshotCurriculumId">{terms.curriculum.singular} publicado</Label>
           <select
             id="snapshotCurriculumId"
             value={curriculumId}
@@ -78,7 +80,7 @@ export function SnapshotDialog({ groupId, publishedCurriculums }: Props) {
             disabled={isPending || publishedCurriculums.length === 0}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <option value="">Seleccionar pensum...</option>
+            <option value="">Seleccionar {terms.curriculum.singular.toLowerCase()}...</option>
             {publishedCurriculums.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name} (v{c.version})
@@ -87,7 +89,7 @@ export function SnapshotDialog({ groupId, publishedCurriculums }: Props) {
           </select>
           {publishedCurriculums.length === 0 && (
             <p className="text-xs text-muted-foreground">
-              Este programa no tiene pensums publicados.
+              Este programa no tiene {terms.curriculum.plural.toLowerCase()} publicados.
             </p>
           )}
         </div>

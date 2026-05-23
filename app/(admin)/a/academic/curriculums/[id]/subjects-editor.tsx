@@ -2,11 +2,13 @@
 
 import { useActionState, useEffect, useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Loader2, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useTerms } from '@/components/terminology/terms-provider'
 import {
   addCurriculumSubjectAction,
   removeCurriculumSubjectAction,
@@ -33,6 +35,7 @@ type Props = {
   subjects: CurriculumSubjectItem[]
   availableSubjects: SubjectInfo[]
   canEdit: boolean
+  programHasSubjects: boolean
 }
 
 type ActionState =
@@ -40,7 +43,14 @@ type ActionState =
   | { success: boolean; id?: string; error?: undefined }
   | null
 
-export function SubjectsEditor({ curriculum, subjects, availableSubjects, canEdit }: Props) {
+export function SubjectsEditor({
+  curriculum,
+  subjects,
+  availableSubjects,
+  canEdit,
+  programHasSubjects,
+}: Props) {
+  const terms = useTerms()
   const cycles = useMemo(
     () => Array.from({ length: curriculum.cycles }, (_, i) => i + 1),
     [curriculum.cycles],
@@ -57,14 +67,44 @@ export function SubjectsEditor({ curriculum, subjects, availableSubjects, canEdi
     return m
   }, [subjects])
 
+  const addEmptyState =
+    canEdit && availableSubjects.length === 0 ? (
+      !programHasSubjects ? (
+        <Card className="glass-subtle">
+          <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
+            <p className="text-sm text-muted-foreground">
+              Este {terms.program.singular.toLowerCase()} aún no tiene{' '}
+              {terms.subject.plural.toLowerCase()}. Créalas primero para poder agregarlas al{' '}
+              {terms.curriculum.singular.toLowerCase()}.
+            </p>
+            <Button asChild size="sm" variant="outline">
+              <Link href="/a/settings">
+                Crear {terms.subject.plural.toLowerCase()}
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          Ya agregaste todas las {terms.subject.plural.toLowerCase()} del{' '}
+          {terms.program.singular.toLowerCase()}.
+        </p>
+      )
+    ) : null
+
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Materias por ciclo</h2>
+      <h2 className="text-lg font-semibold">
+        {terms.subject.plural} por {terms.cycle.singular.toLowerCase()}
+      </h2>
+      {addEmptyState}
       <div className="grid gap-3">
         {cycles.map((cycle) => (
           <Card key={cycle} className="glass-subtle">
             <CardHeader>
-              <CardTitle className="text-base">Ciclo {cycle}</CardTitle>
+              <CardTitle className="text-base">
+                {terms.cycle.singular} {cycle}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <CycleSubjectList
@@ -72,7 +112,7 @@ export function SubjectsEditor({ curriculum, subjects, availableSubjects, canEdi
                 canEdit={canEdit}
                 curriculumId={curriculum.id}
               />
-              {canEdit && (
+              {canEdit && availableSubjects.length > 0 && (
                 <AddSubjectForm
                   curriculumId={curriculum.id}
                   cycle={cycle}
@@ -96,13 +136,14 @@ function CycleSubjectList({
   canEdit: boolean
   curriculumId: string
 }) {
+  const terms = useTerms()
   const router = useRouter()
   const [pendingId, setPendingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [, startTransition] = useTransition()
 
   function handleRemove(id: string) {
-    if (!confirm('¿Eliminar esta materia del pensum?')) return
+    if (!confirm(`¿Eliminar esta ${terms.subject.singular.toLowerCase()} del ${terms.curriculum.singular.toLowerCase()}?`)) return
     setError(null)
     setPendingId(id)
     startTransition(async () => {
@@ -117,7 +158,11 @@ function CycleSubjectList({
   }
 
   if (items.length === 0) {
-    return <p className="text-sm text-muted-foreground">Sin materias en este ciclo.</p>
+    return (
+      <p className="text-sm text-muted-foreground">
+        Sin {terms.subject.plural.toLowerCase()} en este {terms.cycle.singular.toLowerCase()}.
+      </p>
+    )
   }
 
   return (
@@ -132,7 +177,7 @@ function CycleSubjectList({
             <div className="min-w-0">
               <p className="text-sm font-medium">
                 {item.subject?.code ? `${item.subject.code} · ` : ''}
-                {item.subject?.name ?? 'Materia eliminada'}
+                {item.subject?.name ?? `${terms.subject.singular} eliminada`}
               </p>
               <p className="text-xs text-muted-foreground">
                 {effectiveCredits !== null ? `${effectiveCredits} creditos` : 'Sin creditos'}
@@ -147,7 +192,7 @@ function CycleSubjectList({
                 size="sm"
                 disabled={pendingId === item.id}
                 onClick={() => handleRemove(item.id)}
-                aria-label="Eliminar materia"
+                aria-label={`Eliminar ${terms.subject.singular.toLowerCase()}`}
               >
                 {pendingId === item.id ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -174,6 +219,7 @@ function AddSubjectForm({
   cycle: number
   availableSubjects: SubjectInfo[]
 }) {
+  const terms = useTerms()
   const router = useRouter()
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     addCurriculumSubjectAction,
@@ -186,14 +232,6 @@ function AddSubjectForm({
     }
   }, [state, router])
 
-  if (availableSubjects.length === 0) {
-    return (
-      <p className="text-xs text-muted-foreground">
-        No quedan materias del programa por agregar.
-      </p>
-    )
-  }
-
   return (
     <form
       action={formAction}
@@ -204,7 +242,7 @@ function AddSubjectForm({
 
       <div className="flex-1 min-w-[180px] space-y-1">
         <Label htmlFor={`subject-${cycle}`} className="text-xs">
-          Materia
+          {terms.subject.singular}
         </Label>
         <select
           id={`subject-${cycle}`}

@@ -9,6 +9,7 @@ import { getProgramById } from '@/lib/db/academic'
 import { getCurriculums } from '@/lib/db/curriculums'
 import { getGroups } from '@/lib/db/groups'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getTenantTerms } from '@/lib/terminology/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -48,7 +49,7 @@ export default async function ProgramGeneralPage({
   const program = await getProgramById(tenantId, id).catch(() => null)
   if (!program) notFound()
 
-  const [curriculums, groups, coursesCountRes] = await Promise.all([
+  const [curriculums, groups, coursesCountRes, terms] = await Promise.all([
     getCurriculums(tenantId, id),
     getGroups(tenantId, id),
     (async () => {
@@ -69,6 +70,7 @@ export default async function ProgramGeneralPage({
         .is('deleted_at', null)
       return count ?? 0
     })(),
+    getTenantTerms(tenantId),
   ])
 
   const activeGroups = groups.filter((g) => g.status === 'active').length
@@ -91,7 +93,7 @@ export default async function ProgramGeneralPage({
       <div className="grid gap-3 sm:grid-cols-3">
         <Card className="glass-subtle">
           <CardContent className="py-4">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Pensums</p>
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">{terms.curriculum.plural}</p>
             <p className="mt-1 text-2xl font-semibold">{curriculums.length}</p>
           </CardContent>
         </Card>
@@ -105,7 +107,7 @@ export default async function ProgramGeneralPage({
         </Card>
         <Card className="glass-subtle">
           <CardContent className="py-4">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Cursos</p>
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">{terms.course.plural}</p>
             <p className="mt-1 text-2xl font-semibold">{coursesCountRes}</p>
           </CardContent>
         </Card>

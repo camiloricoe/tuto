@@ -7,6 +7,8 @@ import {
   getCurriculumSubjects,
   getSubjectsAvailableForCurriculum,
 } from '@/lib/db/curriculums'
+import { getTenantTerms } from '@/lib/terminology/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CurriculumHeaderActions } from './header-actions'
@@ -58,6 +60,8 @@ export default async function CurriculumDetailPage({
     return <p className="text-muted-foreground">Selecciona un tenant primero.</p>
   }
 
+  const terms = await getTenantTerms(session.activeTenantId)
+
   let curriculum
   try {
     curriculum = await getCurriculumById(session.activeTenantId, id)
@@ -82,6 +86,15 @@ export default async function CurriculumDetailPage({
     | { id: string; name: string; code: string }
     | null
 
+  const admin = createAdminClient()
+  const { count: programSubjectsCount } = await admin
+    .from('subjects')
+    .select('id', { count: 'exact', head: true })
+    .eq('tenant_id', session.activeTenantId)
+    .eq('program_id', curriculum.program_id)
+    .is('deleted_at', null)
+  const programHasSubjects = (programSubjectsCount ?? 0) > 0
+
   return (
     <div className="space-y-6">
       <div>
@@ -89,7 +102,7 @@ export default async function CurriculumDetailPage({
           href="/a/academic/curriculums"
           className="text-sm text-muted-foreground hover:underline"
         >
-          ← Pensums
+          ← {terms.curriculum.plural}
         </Link>
       </div>
 
@@ -99,7 +112,7 @@ export default async function CurriculumDetailPage({
             <div className="min-w-0">
               <CardTitle className="text-xl">{curriculum.name}</CardTitle>
               <p className="mt-1 text-sm text-muted-foreground">
-                {program?.name ?? 'Programa desconocido'}
+                {program?.name ?? `${terms.program.singular} desconocido`}
                 {program?.code ? ` · ${program.code}` : ''} · v{curriculum.version} ·{' '}
                 {curriculum.cycles} ciclos
               </p>
@@ -148,14 +161,16 @@ export default async function CurriculumDetailPage({
         }))}
         availableSubjects={availableSubjects}
         canEdit={canEditSubjects}
+        programHasSubjects={programHasSubjects}
       />
 
       {!canEditSubjects && curriculum.status !== 'draft' && (
         <Card className="glass-subtle">
           <CardContent className="py-4">
             <p className="text-sm text-muted-foreground">
-              Este pensum esta {statusLabel(curriculum.status).toLowerCase()}. Las materias no se
-              pueden modificar.
+              Este {terms.curriculum.singular.toLowerCase()} está{' '}
+              {statusLabel(curriculum.status).toLowerCase()}. Las{' '}
+              {terms.subject.plural.toLowerCase()} no se pueden modificar.
             </p>
           </CardContent>
         </Card>

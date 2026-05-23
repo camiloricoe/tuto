@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useTerms } from '@/components/terminology/terms-provider'
 
 type Program = { id: string; name: string; code: string }
 type Curriculum = { id: string; name: string; version: string }
@@ -17,6 +18,7 @@ type Props = {
 }
 
 export default function NewGroupForm({ programs, curriculumsByProgram }: Props) {
+  const terms = useTerms()
   const router = useRouter()
   const [state, formAction, pending] = useActionState(createGroupAction, null)
   const [programId, setProgramId] = useState<string>('')
@@ -103,14 +105,14 @@ export default function NewGroupForm({ programs, curriculumsByProgram }: Props) 
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="curriculumId">Pensum (opcional)</Label>
+            <Label htmlFor="curriculumId">{terms.curriculum.singular} (opcional)</Label>
             <select
               id="curriculumId"
               name="curriculumId"
               disabled={!programId || availableCurriculums.length === 0}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <option value="">Sin pensum</option>
+              <option value="">Sin {terms.curriculum.singular.toLowerCase()}</option>
               {availableCurriculums.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name} (v{c.version})
@@ -119,8 +121,8 @@ export default function NewGroupForm({ programs, curriculumsByProgram }: Props) 
             </select>
             <p className="text-xs text-muted-foreground">
               {programId && availableCurriculums.length === 0
-                ? 'Este programa no tiene pensums publicados.'
-                : 'Si eliges un pensum, se copiara el plan al grupo automaticamente.'}
+                ? `Este programa no tiene ${terms.curriculum.plural.toLowerCase()} publicados.`
+                : `Si eliges un ${terms.curriculum.singular.toLowerCase()}, se copiara el plan al grupo automaticamente.`}
             </p>
           </div>
 
@@ -129,7 +131,7 @@ export default function NewGroupForm({ programs, curriculumsByProgram }: Props) 
           )}
           {state && 'warning' in state && state.warning && (
             <p className="text-sm text-destructive">
-              Grupo creado, pero hubo un problema al aplicar el pensum: {state.warning}
+              Grupo creado, pero hubo un problema al aplicar el {terms.curriculum.singular.toLowerCase()}: {state.warning}
             </p>
           )}
           {state && 'success' in state && state.success && (

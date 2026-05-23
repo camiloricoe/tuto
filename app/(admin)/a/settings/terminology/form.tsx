@@ -17,6 +17,20 @@ import {
   type TermKey,
 } from '@/lib/terminology/defaults'
 
+const TERM_DESCRIPTIONS: Record<TermKey, string> = {
+  program:
+    'La carrera o programa académico al que pertenece todo lo demás. Ej: "Auxiliar de Enfermería".',
+  subject:
+    'Cada materia del catálogo del programa: tiene código, nombre y créditos. Plantilla reutilizable.',
+  course:
+    'Un dictado concreto de una materia en un periodo, con docente y sección. Aquí van matrículas y notas.',
+  curriculum: 'Plan de estudios: define qué materias van en cada ciclo.',
+  cycle: 'Cada bloque del plan de estudios (semestre, módulo, etapa).',
+  group: 'Cohorte de estudiantes que avanza junta por un plan de estudios.',
+  student: 'Persona matriculada.',
+  teacher: 'Persona que dicta cursos.',
+}
+
 export function TerminologyForm({ initial }: { initial: TenantTerms }) {
   const [terms, setTerms] = useState<TenantTerms>(initial)
   const [state, action, pending] = useActionState(
@@ -76,6 +90,9 @@ export function TerminologyForm({ initial }: { initial: TenantTerms }) {
                     placeholder={DEFAULT_TERMS[key].plural}
                   />
                 </div>
+                <p className="text-xs text-muted-foreground mt-1 sm:col-span-2">
+                  {TERM_DESCRIPTIONS[key]}
+                </p>
               </CardContent>
             </Card>
           )

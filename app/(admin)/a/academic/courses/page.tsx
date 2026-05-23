@@ -1,6 +1,7 @@
 import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { getCourses } from '@/lib/db/academic'
+import { getTenantTerms } from '@/lib/terminology/server'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CourseRowActions } from './row-actions'
@@ -13,15 +14,18 @@ export default async function CoursesPage() {
     return <p className="text-muted-foreground">Selecciona un tenant primero.</p>
   }
 
-  const courses = await getCourses(session.activeTenantId)
+  const [courses, terms] = await Promise.all([
+    getCourses(session.activeTenantId),
+    getTenantTerms(session.activeTenantId),
+  ])
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Cursos</h1>
+        <h1 className="text-2xl font-semibold">{terms.course.plural}</h1>
         {session.permissions.has('academic:write') && (
           <Button asChild>
-            <a href="/a/academic/courses/new">Nuevo curso</a>
+            <a href="/a/academic/courses/new">Nuevo {terms.course.singular.toLowerCase()}</a>
           </Button>
         )}
       </div>
@@ -34,7 +38,7 @@ export default async function CoursesPage() {
             <Card key={course.id} className="glass-subtle">
               <CardContent className="flex items-center justify-between gap-3 py-4">
                 <div className="min-w-0">
-                  <p className="font-medium">{subject?.name ?? 'Sin materia'}</p>
+                  <p className="font-medium">{subject?.name ?? `Sin ${terms.subject.singular.toLowerCase()}`}</p>
                   <p className="text-sm text-muted-foreground">
                     {subject?.code} · {period?.name} · Seccion: {course.section_code || 'A'}
                   </p>
@@ -49,7 +53,7 @@ export default async function CoursesPage() {
           )
         })}
         {courses.length === 0 && (
-          <p className="text-muted-foreground">No hay cursos registrados.</p>
+          <p className="text-muted-foreground">No hay {terms.course.plural.toLowerCase()} registrados.</p>
         )}
       </div>
     </div>

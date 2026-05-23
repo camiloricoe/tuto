@@ -34,6 +34,15 @@ export default async function TerminologyPage() {
         </p>
       </header>
 
+      <div className="rounded-lg border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+        Los conceptos académicos se separan en dos planos:{' '}
+        <strong className="text-foreground">catálogo</strong> (qué se puede enseñar —{' '}
+        <em>Materia / Asignatura</em>) y{' '}
+        <strong className="text-foreground">oferta</strong> (cuándo y por quién se dicta —{' '}
+        <em>Curso / Dictado</em>). Si tu institución usa una sola palabra para ambos, déjalos con
+        etiquetas distintas para que el sistema pueda diferenciarlos internamente.
+      </div>
+
       <TerminologyForm initial={terms} />
     </div>
   )

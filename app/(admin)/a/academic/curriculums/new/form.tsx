@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useTerms } from '@/components/terminology/terms-provider'
 
 type ProgramOption = { id: string; name: string; code: string }
 
@@ -16,6 +17,7 @@ type ActionState =
   | null
 
 export default function NewCurriculumForm({ programs }: { programs: ProgramOption[] }) {
+  const terms = useTerms()
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     createCurriculumAction,
     null,
@@ -30,11 +32,11 @@ export default function NewCurriculumForm({ programs }: { programs: ProgramOptio
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
-      <h1 className="text-2xl font-semibold">Nuevo Pensum</h1>
+      <h1 className="text-2xl font-semibold">Nuevo {terms.curriculum.singular}</h1>
 
       <Card className="glass">
         <CardHeader>
-          <CardTitle className="text-base">Datos del pensum</CardTitle>
+          <CardTitle className="text-base">Datos del {terms.curriculum.singular.toLowerCase()}</CardTitle>
         </CardHeader>
         <CardContent>
           <form action={formAction} className="space-y-4">
@@ -65,7 +67,7 @@ export default function NewCurriculumForm({ programs }: { programs: ProgramOptio
               <Input
                 id="name"
                 name="name"
-                placeholder="Ej: Pensum 2026-1"
+                placeholder={`Ej: ${terms.curriculum.singular} 2026-1`}
                 required
                 minLength={2}
               />
@@ -91,14 +93,14 @@ export default function NewCurriculumForm({ programs }: { programs: ProgramOptio
 
             <div className="space-y-1">
               <Label htmlFor="notes">Notas (opcional)</Label>
-              <Input id="notes" name="notes" placeholder="Notas internas del pensum" />
+              <Input id="notes" name="notes" placeholder={`Notas internas del ${terms.curriculum.singular.toLowerCase()}`} />
             </div>
 
             {state && 'error' in state && state.error && (
               <p className="text-sm text-destructive">{state.error}</p>
             )}
             {state && 'success' in state && state.success && (
-              <p className="text-sm text-primary">Pensum creado. Redirigiendo...</p>
+              <p className="text-sm text-primary">{terms.curriculum.singular} creado. Redirigiendo...</p>
             )}
 
             <Button
@@ -106,7 +108,7 @@ export default function NewCurriculumForm({ programs }: { programs: ProgramOptio
               disabled={pending || programs.length === 0}
               className="w-full"
             >
-              {pending ? 'Creando...' : 'Crear pensum'}
+              {pending ? 'Creando...' : `Crear ${terms.curriculum.singular.toLowerCase()}`}
             </Button>
           </form>
         </CardContent>

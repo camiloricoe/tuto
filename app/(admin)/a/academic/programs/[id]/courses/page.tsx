@@ -6,6 +6,7 @@ import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { getProgramById } from '@/lib/db/academic'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getTenantTerms } from '@/lib/terminology/server'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -47,7 +48,10 @@ export default async function ProgramCoursesPage({
   }
 
   const tenantId = session.activeTenantId
-  const program = await getProgramById(tenantId, id).catch(() => null)
+  const [program, terms] = await Promise.all([
+    getProgramById(tenantId, id).catch(() => null),
+    getTenantTerms(tenantId),
+  ])
   if (!program) notFound()
 
   const admin = createAdminClient()
@@ -80,7 +84,7 @@ export default async function ProgramCoursesPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Cursos del programa</h2>
+        <h2 className="text-lg font-semibold">{terms.course.plural} del {terms.program.singular.toLowerCase()}</h2>
       </div>
 
       <div className="grid gap-3">

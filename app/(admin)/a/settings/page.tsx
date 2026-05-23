@@ -3,6 +3,7 @@ import type { Route } from 'next'
 import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getTenantTerms } from '@/lib/terminology/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PeriodForm } from './period-form'
 import { GradingSchemeForm } from './grading-scheme-form'
@@ -20,7 +21,7 @@ export default async function SettingsPage() {
   const admin = createAdminClient()
   const tenantId = session.activeTenantId
 
-  const [periodsRes, schemesRes, subjectsRes, programsRes] = await Promise.all([
+  const [periodsRes, schemesRes, subjectsRes, programsRes, terms] = await Promise.all([
     admin
       .from('academic_periods')
       .select('id, name, code, kind, starts_on, ends_on, active')
@@ -45,6 +46,7 @@ export default async function SettingsPage() {
       .eq('tenant_id', tenantId)
       .is('deleted_at', null)
       .order('name'),
+    getTenantTerms(tenantId),
   ])
 
   const periods = periodsRes.data ?? []
@@ -173,7 +175,7 @@ export default async function SettingsPage() {
 
       {/* Subjects */}
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Materias</h2>
+        <h2 className="text-lg font-semibold">{terms.subject.plural}</h2>
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="space-y-3">
             {subjects.map((subject) => {

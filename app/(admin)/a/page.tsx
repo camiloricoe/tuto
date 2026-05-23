@@ -1,5 +1,6 @@
 import { requireSession } from '@/lib/auth/session'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getTenantTerms } from '@/lib/terminology/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { FormattedTime } from '@/components/shared/formatted-time'
 import { Users, BookOpen, AlertCircle, Activity } from 'lucide-react'
@@ -8,6 +9,8 @@ export default async function AdminDashboard() {
   const session = await requireSession()
   const tenantId = session.activeTenantId ?? ''
   const admin = createAdminClient()
+
+  const terms = await getTenantTerms(tenantId)
 
   const [enrollmentsRes, coursesRes, overdueRes, activityRes] = await Promise.all([
     admin
@@ -55,12 +58,12 @@ export default async function AdminDashboard() {
 
         <Card className="glass-subtle">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Cursos</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{terms.course.plural}</CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">{courseCount}</p>
-            <p className="mt-1 text-xs text-muted-foreground">Cursos activos</p>
+            <p className="mt-1 text-xs text-muted-foreground">{terms.course.plural} activos</p>
           </CardContent>
         </Card>
 

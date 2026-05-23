@@ -6,6 +6,7 @@ import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { getProgramById } from '@/lib/db/academic'
 import { getGroups } from '@/lib/db/groups'
+import { getTenantTerms } from '@/lib/terminology/server'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -38,7 +39,10 @@ export default async function ProgramGroupsPage({
   const program = await getProgramById(tenantId, id).catch(() => null)
   if (!program) notFound()
 
-  const groups = await getGroups(tenantId, id)
+  const [groups, terms] = await Promise.all([
+    getGroups(tenantId, id),
+    getTenantTerms(tenantId),
+  ])
   const canWrite = session.permissions.has('groups:write')
 
   return (
@@ -79,7 +83,7 @@ export default async function ProgramGroupsPage({
                     </span>
                     {group.snapshotted_at && (
                       <span className="inline-flex items-center gap-1 text-primary">
-                        <Camera className="h-3 w-3" /> Pensum aplicado
+                        <Camera className="h-3 w-3" /> {terms.curriculum.singular} aplicado
                       </span>
                     )}
                   </div>
