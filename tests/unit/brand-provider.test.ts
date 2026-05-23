@@ -107,19 +107,21 @@ describe('BrandStyle', () => {
     expect(html).toBe('')
   })
 
-  it('renders --brand-primary, --primary, --ring when primary_hsl set', () => {
+  it('renders --brand-primary, --color-primary, --color-ring when primary_hsl set', () => {
     const branding = makeBranding({ primary_hsl: '221 83% 53%' })
     const html = renderToStaticMarkup(BrandStyle({ branding }))
     expect(html).toContain('<style')
     expect(html).toContain('--brand-primary: 221 83% 53%')
-    expect(html).toContain('--primary: 221 83% 53%')
-    expect(html).toContain('--ring: 221 83% 53%')
+    expect(html).toContain('--color-primary: hsl(221 83% 53%)')
+    expect(html).toContain('--color-ring: hsl(221 83% 53%)')
   })
 
-  it('renders --brand-accent when accent_hsl set', () => {
+  it('renders --brand-accent and accent color tokens when accent_hsl set', () => {
     const branding = makeBranding({ accent_hsl: '180 50% 40%' })
     const html = renderToStaticMarkup(BrandStyle({ branding }))
     expect(html).toContain('--brand-accent: 180 50% 40%')
+    expect(html).toContain('--color-accent: hsl(180 50% 40% / 0.15)')
+    expect(html).toContain('--color-accent-foreground: hsl(180 50% 40%)')
   })
 
   it('renders both primary and accent vars when both set', () => {

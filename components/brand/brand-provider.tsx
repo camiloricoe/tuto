@@ -63,13 +63,15 @@ export function BrandStyle({ branding }: BrandStyleProps) {
   const decls: string[] = []
   if (primary) {
     decls.push(`--brand-primary: ${primary};`)
-    // Override the shadcn token so existing utilities (bg-primary, etc.) pick
-    // up the tenant color automatically.
-    decls.push(`--primary: ${primary};`)
-    decls.push(`--ring: ${primary};`)
+    // Tailwind v4 reads `--color-primary` / `--color-ring` from `@theme`.
+    // Wrap the validated HSL triplet in `hsl(...)` so utilities pick it up.
+    decls.push(`--color-primary: hsl(${primary});`)
+    decls.push(`--color-ring: hsl(${primary});`)
   }
   if (accent) {
     decls.push(`--brand-accent: ${accent};`)
+    decls.push(`--color-accent: hsl(${accent} / 0.15);`)
+    decls.push(`--color-accent-foreground: hsl(${accent});`)
   }
 
   const css = `:root{${decls.join('')}}`
