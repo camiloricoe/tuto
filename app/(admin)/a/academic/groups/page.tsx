@@ -3,6 +3,7 @@ import { Camera } from 'lucide-react'
 import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { getGroups } from '@/lib/db/groups'
+import { getTenantTerms } from '@/lib/terminology/server'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { GroupRowActions } from './row-actions'
@@ -27,16 +28,21 @@ export default async function GroupsPage() {
     return <p className="text-muted-foreground">Selecciona un tenant primero.</p>
   }
 
-  const groups = await getGroups(session.activeTenantId)
+  const [groups, terms] = await Promise.all([
+    getGroups(session.activeTenantId),
+    getTenantTerms(session.activeTenantId),
+  ])
   const canWrite = session.permissions.has('groups:write')
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Grupos</h1>
+        <h1 className="text-2xl font-semibold">{terms.group.plural}</h1>
         {canWrite && (
           <Button asChild>
-            <Link href="/a/academic/groups/new">Nuevo grupo</Link>
+            <Link href="/a/academic/groups/new">
+              Nuevo {terms.group.singular.toLowerCase()}
+            </Link>
           </Button>
         )}
       </div>
@@ -82,7 +88,9 @@ export default async function GroupsPage() {
           )
         })}
         {groups.length === 0 && (
-          <p className="text-muted-foreground">No hay grupos registrados.</p>
+          <p className="text-muted-foreground">
+            No hay {terms.group.plural.toLowerCase()} registrados.
+          </p>
         )}
       </div>
     </div>

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { getCurriculums } from '@/lib/db/curriculums'
+import { getTenantTerms } from '@/lib/terminology/server'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -35,16 +36,21 @@ export default async function CurriculumsPage() {
     return <p className="text-muted-foreground">Selecciona un tenant primero.</p>
   }
 
-  const curriculums = await getCurriculums(session.activeTenantId)
+  const [curriculums, terms] = await Promise.all([
+    getCurriculums(session.activeTenantId),
+    getTenantTerms(session.activeTenantId),
+  ])
   const canWrite = session.permissions.has('curriculums:write')
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Pensums</h1>
+        <h1 className="text-2xl font-semibold">{terms.curriculum.plural}</h1>
         {canWrite && (
           <Button asChild>
-            <Link href="/a/academic/curriculums/new">Nuevo pensum</Link>
+            <Link href="/a/academic/curriculums/new">
+              Nuevo {terms.curriculum.singular.toLowerCase()}
+            </Link>
           </Button>
         )}
       </div>
@@ -84,7 +90,9 @@ export default async function CurriculumsPage() {
           )
         })}
         {curriculums.length === 0 && (
-          <p className="text-muted-foreground">No hay pensums registrados.</p>
+          <p className="text-muted-foreground">
+            No hay {terms.curriculum.plural.toLowerCase()} registrados.
+          </p>
         )}
       </div>
     </div>

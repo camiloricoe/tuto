@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import type { Route } from 'next'
 import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -64,7 +65,7 @@ export default async function SettingsPage() {
       <h1 className="text-2xl font-semibold">Configuracion</h1>
 
       {/* Branding */}
-      <section className="space-y-4">
+      <section className="grid gap-4 md:grid-cols-2">
         <Link href="/a/settings/branding" className="block">
           <Card className="glass transition-colors hover:bg-accent/30">
             <CardHeader>
@@ -73,6 +74,19 @@ export default async function SettingsPage() {
             <CardContent>
               <p className="text-sm text-muted-foreground">
                 Personaliza el logo, favicon, colores y mensajes de la institución.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href={'/a/settings/terminology' as Route} className="block">
+          <Card className="glass transition-colors hover:bg-accent/30">
+            <CardHeader>
+              <CardTitle className="text-base">Terminología</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Renombra los conceptos académicos (Programa, Curso, Pensum...) según el vocabulario
+                de tu institución.
               </p>
             </CardContent>
           </Card>

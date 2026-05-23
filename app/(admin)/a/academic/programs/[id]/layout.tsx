@@ -5,6 +5,7 @@ import type { Route } from 'next'
 import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { getProgramById } from '@/lib/db/academic'
+import { getTenantTerms } from '@/lib/terminology/server'
 
 type ProgramCockpitLayoutProps = {
   children: React.ReactNode
@@ -33,14 +34,17 @@ export default async function ProgramCockpitLayout({
     return <p className="text-muted-foreground">Selecciona un tenant primero.</p>
   }
 
-  const program = await getProgramById(session.activeTenantId, id).catch(() => null)
+  const [program, terms] = await Promise.all([
+    getProgramById(session.activeTenantId, id).catch(() => null),
+    getTenantTerms(session.activeTenantId),
+  ])
   if (!program) notFound()
 
   const tabs = [
     { href: `/a/academic/programs/${id}` as Route, label: 'General' },
-    { href: `/a/academic/programs/${id}/curriculums` as Route, label: 'Pensums' },
-    { href: `/a/academic/programs/${id}/groups` as Route, label: 'Grupos' },
-    { href: `/a/academic/programs/${id}/courses` as Route, label: 'Cursos' },
+    { href: `/a/academic/programs/${id}/curriculums` as Route, label: terms.curriculum.plural },
+    { href: `/a/academic/programs/${id}/groups` as Route, label: terms.group.plural },
+    { href: `/a/academic/programs/${id}/courses` as Route, label: terms.course.plural },
   ] as const
 
   const modalityLabel = MODALITY_LABELS[program.modality] ?? program.modality
@@ -54,7 +58,7 @@ export default async function ProgramCockpitLayout({
               href="/a/academic/programs"
               className="text-xs text-muted-foreground hover:underline"
             >
-              ← Todos los programas
+              ← Todos los {terms.program.plural.toLowerCase()}
             </Link>
             <h1 className="mt-1 text-3xl font-semibold tracking-tight">
               {program.name}

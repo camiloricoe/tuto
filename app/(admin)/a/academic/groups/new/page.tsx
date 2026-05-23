@@ -1,6 +1,7 @@
 import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { getPrograms } from '@/lib/db/academic'
+import { getTenantTerms } from '@/lib/terminology/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import NewGroupForm from './form'
 
@@ -12,7 +13,10 @@ export default async function NewGroupPage() {
     return <p className="text-muted-foreground">Selecciona un tenant primero.</p>
   }
 
-  const programs = await getPrograms(session.activeTenantId)
+  const [programs, terms] = await Promise.all([
+    getPrograms(session.activeTenantId),
+    getTenantTerms(session.activeTenantId),
+  ])
 
   const admin = createAdminClient()
   const { data: curriculums } = await admin
@@ -35,7 +39,9 @@ export default async function NewGroupPage() {
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
-      <h1 className="text-2xl font-semibold">Nuevo grupo</h1>
+      <h1 className="text-2xl font-semibold">
+        Nuevo {terms.group.singular.toLowerCase()}
+      </h1>
       <NewGroupForm programs={programs} curriculumsByProgram={curriculumsByProgram} />
     </div>
   )

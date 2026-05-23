@@ -3,6 +3,7 @@ import type { Route } from 'next'
 import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { getPrograms } from '@/lib/db/academic'
+import { getTenantTerms } from '@/lib/terminology/server'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ProgramRowActions } from './row-actions'
@@ -15,15 +16,18 @@ export default async function ProgramsPage() {
     return <p className="text-muted-foreground">Selecciona un tenant primero.</p>
   }
 
-  const programs = await getPrograms(session.activeTenantId)
+  const [programs, terms] = await Promise.all([
+    getPrograms(session.activeTenantId),
+    getTenantTerms(session.activeTenantId),
+  ])
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Programas Academicos</h1>
+        <h1 className="text-2xl font-semibold">{terms.program.plural} Académicos</h1>
         {session.permissions.has('academic:write') && (
           <Button asChild>
-            <a href="/a/academic/programs/new">Nuevo programa</a>
+            <a href="/a/academic/programs/new">Nuevo {terms.program.singular.toLowerCase()}</a>
           </Button>
         )}
       </div>
@@ -54,7 +58,9 @@ export default async function ProgramsPage() {
           </Card>
         ))}
         {programs.length === 0 && (
-          <p className="text-muted-foreground">No hay programas registrados.</p>
+          <p className="text-muted-foreground">
+            No hay {terms.program.plural.toLowerCase()} registrados.
+          </p>
         )}
       </div>
     </div>

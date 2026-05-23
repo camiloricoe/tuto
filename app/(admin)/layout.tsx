@@ -12,36 +12,42 @@ import { getBrandingByTenantId } from '@/lib/branding/queries'
 import { MilestoneWidget } from '@/components/onboarding/milestone-widget'
 import { getProgressForRole } from '@/lib/onboarding/progress'
 import { pickRoleForPortal } from '@/lib/onboarding/catalog'
+import { getTenantTerms } from '@/lib/terminology/server'
+import { TermsProvider } from '@/components/terminology/terms-provider'
 
-const baseAdminNavItems: NavItem[] = [
-  { label: 'Dashboard', href: '/a', icon: 'dashboard' },
-  { label: 'Usuarios', href: '/a/users', icon: 'users' },
-  {
-    label: 'Academico',
-    href: '/a/academic/programs',
-    icon: 'academic',
-    children: [
-      { label: 'Programas', href: '/a/academic/programs' },
-      { label: 'Pensums', href: '/a/academic/curriculums' },
-      { label: 'Grupos', href: '/a/academic/groups' },
-      { label: 'Cursos', href: '/a/academic/courses' },
-    ],
-  },
-  {
-    label: 'Pagos',
-    href: '/a/payments/concepts',
-    icon: 'payments',
-    children: [
-      { label: 'Conceptos', href: '/a/payments/concepts' },
-      { label: 'Registrar pago', href: '/a/payments' },
-      { label: 'Cargos', href: '/a/payments/charges' },
-    ],
-  },
-  { label: 'Importar', href: '/a/import', icon: 'import' },
-  { label: 'Feedback', href: '/a/feedback', icon: 'feedback' },
-  { label: 'Auditoria', href: '/a/audit', icon: 'audit' },
-  { label: 'Configuracion', href: '/a/settings', icon: 'settings' },
-]
+import type { TenantTerms } from '@/lib/terminology/defaults'
+
+function buildAdminNavItems(terms: TenantTerms): NavItem[] {
+  return [
+    { label: 'Dashboard', href: '/a', icon: 'dashboard' },
+    { label: 'Usuarios', href: '/a/users', icon: 'users' },
+    {
+      label: 'Academico',
+      href: '/a/academic/programs',
+      icon: 'academic',
+      children: [
+        { label: terms.program.plural, href: '/a/academic/programs' },
+        { label: terms.curriculum.plural, href: '/a/academic/curriculums' },
+        { label: terms.group.plural, href: '/a/academic/groups' },
+        { label: terms.course.plural, href: '/a/academic/courses' },
+      ],
+    },
+    {
+      label: 'Pagos',
+      href: '/a/payments/concepts',
+      icon: 'payments',
+      children: [
+        { label: 'Conceptos', href: '/a/payments/concepts' },
+        { label: 'Registrar pago', href: '/a/payments' },
+        { label: 'Cargos', href: '/a/payments/charges' },
+      ],
+    },
+    { label: 'Importar', href: '/a/import', icon: 'import' },
+    { label: 'Feedback', href: '/a/feedback', icon: 'feedback' },
+    { label: 'Auditoria', href: '/a/audit', icon: 'audit' },
+    { label: 'Configuracion', href: '/a/settings', icon: 'settings' },
+  ]
+}
 
 const tenantsNavItem: NavItem = {
   label: 'Instituciones',
@@ -75,6 +81,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     : null
   const brandLabel = activeTenant?.name ?? 'TUTO'
 
+  const terms = await getTenantTerms(session.activeTenantId)
+  const baseAdminNavItems = buildAdminNavItems(terms)
+
   const adminNavItems: NavItem[] = session.isSuperAdmin
     ? [tenantsNavItem, ...baseAdminNavItems, healthNavItem]
     : baseAdminNavItems
@@ -93,6 +102,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     : null
 
   return (
+    <TermsProvider terms={terms}>
     <div className="min-h-screen bg-background">
       <header className="glass-subtle sticky top-0 z-50 flex items-center justify-between border-b px-6 py-3">
         <div className="flex items-center gap-4">
@@ -145,5 +155,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </div>
       <FeedbackWidget />
     </div>
+    </TermsProvider>
   )
 }
