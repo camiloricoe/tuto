@@ -2106,6 +2106,7 @@ export type Database = {
           id: string
           is_super_admin: boolean
           phone: string | null
+          phone_type: string | null
           two_factor_enabled_at: string | null
           two_factor_required: boolean
           updated_at: string
@@ -2119,6 +2120,7 @@ export type Database = {
           id: string
           is_super_admin?: boolean
           phone?: string | null
+          phone_type?: string | null
           two_factor_enabled_at?: string | null
           two_factor_required?: boolean
           updated_at?: string
@@ -2132,6 +2134,7 @@ export type Database = {
           id?: string
           is_super_admin?: boolean
           phone?: string | null
+          phone_type?: string | null
           two_factor_enabled_at?: string | null
           two_factor_required?: boolean
           updated_at?: string

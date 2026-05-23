@@ -6,6 +6,7 @@ export type UserProfileSummary = {
   document_type: string | null
   document_number: string | null
   phone: string | null
+  phone_type: string | null
   avatar_url: string | null
   created_at: string
   joined_at: string
@@ -30,7 +31,7 @@ export async function getUserProfile(
   const { data: profile } = await admin
     .from('user_profiles')
     .select(
-      'id, full_name, document_type, document_number, phone, avatar_url, created_at',
+      'id, full_name, document_type, document_number, phone, phone_type, avatar_url, created_at',
     )
     .eq('id', userId)
     .maybeSingle()
@@ -54,6 +55,7 @@ export async function getUserProfile(
     document_type: profile.document_type,
     document_number: profile.document_number,
     phone: profile.phone,
+    phone_type: profile.phone_type,
     avatar_url: profile.avatar_url,
     created_at: profile.created_at,
     joined_at: membership.joined_at,
