@@ -1,3 +1,6 @@
+import Link from 'next/link'
+import type { Route } from 'next'
+
 import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -57,16 +60,22 @@ export default async function UsersPage() {
       </div>
       <div className="grid gap-3">
         {(profiles ?? []).map((profile) => (
-          <Card key={profile.id} className="glass-subtle">
-            <CardContent className="flex items-center justify-between py-4">
-              <div>
-                <p className="font-medium">{profile.full_name || 'Sin nombre'}</p>
-                <p className="text-sm text-muted-foreground">
-                  {(rolesByUser.get(profile.id) ?? []).join(', ') || 'Sin rol'}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <Link
+            key={profile.id}
+            href={`/a/users/${profile.id}` as Route}
+            className="block rounded-lg transition hover:opacity-90"
+          >
+            <Card className="glass-subtle">
+              <CardContent className="flex items-center justify-between py-4">
+                <div>
+                  <p className="font-medium">{profile.full_name || 'Sin nombre'}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {(rolesByUser.get(profile.id) ?? []).join(', ') || 'Sin rol'}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
         {(profiles ?? []).length === 0 && (
           <p className="text-muted-foreground">No hay usuarios en este tenant.</p>

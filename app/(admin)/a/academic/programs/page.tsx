@@ -1,3 +1,5 @@
+import Link from 'next/link'
+import type { Route } from 'next'
 import { requireSession } from '@/lib/auth/session'
 import { requirePermission } from '@/lib/auth/permissions'
 import { getPrograms } from '@/lib/db/academic'
@@ -30,7 +32,7 @@ export default async function ProgramsPage() {
         {programs.map((program) => (
           <Card key={program.id} className="glass-subtle">
             <CardContent className="flex items-center justify-between gap-4 py-4">
-              <div className="min-w-0">
+              <Link href={`/a/academic/programs/${program.id}` as Route} className="min-w-0 flex-1">
                 <p className="font-medium">{program.name}</p>
                 <p className="text-sm text-muted-foreground">
                   {program.code} · {program.modality} · {program.duration_periods} periodos
@@ -38,11 +40,16 @@ export default async function ProgramsPage() {
                 {program.description && (
                   <p className="mt-1 text-sm text-muted-foreground">{program.description}</p>
                 )}
+              </Link>
+              <div className="flex items-center gap-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/a/academic/programs/${program.id}` as Route}>Abrir</Link>
+                </Button>
+                <ProgramRowActions
+                  programId={program.id}
+                  canWrite={session.permissions.has('academic:write')}
+                />
               </div>
-              <ProgramRowActions
-                programId={program.id}
-                canWrite={session.permissions.has('academic:write')}
-              />
             </CardContent>
           </Card>
         ))}
