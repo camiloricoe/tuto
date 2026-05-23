@@ -22,6 +22,8 @@ const baseAdminNavItems: NavItem[] = [
     icon: 'academic',
     children: [
       { label: 'Programas', href: '/a/academic/programs' },
+      { label: 'Pensums', href: '/a/academic/curriculums' },
+      { label: 'Grupos', href: '/a/academic/groups' },
       { label: 'Cursos', href: '/a/academic/courses' },
     ],
   },

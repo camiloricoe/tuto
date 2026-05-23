@@ -35,6 +35,10 @@ INSERT INTO permissions (code, resource, action, description) VALUES
   ('enrollments:read', 'enrollments', 'read', 'View enrollments'),
   ('enrollments:read:own', 'enrollments', 'read:own', 'View own enrollments'),
   ('enrollments:write', 'enrollments', 'write', 'Manage enrollments'),
+  ('curriculums:read',  'curriculums', 'read',  'View curriculums (pensums)'),
+  ('curriculums:write', 'curriculums', 'write', 'Manage curriculums (pensums)'),
+  ('groups:read',       'groups',      'read',  'View student groups (cohorts)'),
+  ('groups:write',      'groups',      'write', 'Manage student groups (cohorts)'),
   -- Grades
   ('grades:read', 'grades', 'read', 'View all grades'),
   ('grades:read:own', 'grades', 'read:own', 'View own grades'),

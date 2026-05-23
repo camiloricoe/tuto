@@ -279,6 +279,7 @@ export type Database = {
           created_by: string | null
           deleted_at: string | null
           grading_scheme_id: string
+          group_id: string | null
           id: string
           max_students: number | null
           period_id: string
@@ -295,6 +296,7 @@ export type Database = {
           created_by?: string | null
           deleted_at?: string | null
           grading_scheme_id: string
+          group_id?: string | null
           id?: string
           max_students?: number | null
           period_id: string
@@ -311,6 +313,7 @@ export type Database = {
           created_by?: string | null
           deleted_at?: string | null
           grading_scheme_id?: string
+          group_id?: string | null
           id?: string
           max_students?: number | null
           period_id?: string
@@ -328,6 +331,13 @@ export type Database = {
             columns: ["grading_scheme_id"]
             isOneToOne: false
             referencedRelation: "grading_schemes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "courses_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "student_groups"
             referencedColumns: ["id"]
           },
           {
@@ -353,6 +363,150 @@ export type Database = {
           },
           {
             foreignKeyName: "courses_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curriculum_subjects: {
+        Row: {
+          created_at: string
+          credits: number | null
+          curriculum_id: string
+          cycle: number
+          id: string
+          is_required: boolean
+          sequence: number
+          subject_id: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credits?: number | null
+          curriculum_id: string
+          cycle: number
+          id?: string
+          is_required?: boolean
+          sequence?: number
+          subject_id: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number | null
+          curriculum_id?: string
+          cycle?: number
+          id?: string
+          is_required?: boolean
+          sequence?: number
+          subject_id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curriculum_subjects_curriculum_id_fkey"
+            columns: ["curriculum_id"]
+            isOneToOne: false
+            referencedRelation: "curriculums"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curriculum_subjects_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curriculum_subjects_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curriculum_subjects_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curriculums: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          cycles: number
+          deleted_at: string | null
+          id: string
+          name: string
+          notes: string | null
+          program_id: string
+          published_at: string | null
+          published_by: string | null
+          status: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          version: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          cycles?: number
+          deleted_at?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          program_id: string
+          published_at?: string | null
+          published_by?: string | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          cycles?: number
+          deleted_at?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          program_id?: string
+          published_at?: string | null
+          published_by?: string | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curriculums_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "academic_programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curriculums_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curriculums_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants_public"
@@ -812,6 +966,129 @@ export type Database = {
           },
           {
             foreignKeyName: "grading_schemes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_members: {
+        Row: {
+          created_by: string | null
+          group_id: string
+          id: string
+          joined_at: string
+          left_at: string | null
+          student_id: string
+          tenant_id: string
+        }
+        Insert: {
+          created_by?: string | null
+          group_id: string
+          id?: string
+          joined_at?: string
+          left_at?: string | null
+          student_id: string
+          tenant_id: string
+        }
+        Update: {
+          created_by?: string | null
+          group_id?: string
+          id?: string
+          joined_at?: string
+          left_at?: string | null
+          student_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "student_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_members_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_members_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_subjects: {
+        Row: {
+          created_at: string
+          credits: number | null
+          cycle: number
+          group_id: string
+          id: string
+          is_required: boolean
+          sequence: number
+          status: string
+          subject_id: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credits?: number | null
+          cycle: number
+          group_id: string
+          id?: string
+          is_required?: boolean
+          sequence?: number
+          status?: string
+          subject_id: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number | null
+          cycle?: number
+          group_id?: string
+          id?: string
+          is_required?: boolean
+          sequence?: number
+          status?: string
+          subject_id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_subjects_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "student_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_subjects_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_subjects_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_subjects_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants_public"
@@ -1515,6 +1792,95 @@ export type Database = {
         }
         Relationships: []
       }
+      student_groups: {
+        Row: {
+          code: string | null
+          created_at: string
+          created_by: string | null
+          current_cycle: number
+          curriculum_id: string | null
+          deleted_at: string | null
+          id: string
+          intake_period: string | null
+          intake_year: number
+          name: string
+          notes: string | null
+          program_id: string
+          snapshotted_at: string | null
+          status: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_cycle?: number
+          curriculum_id?: string | null
+          deleted_at?: string | null
+          id?: string
+          intake_period?: string | null
+          intake_year: number
+          name: string
+          notes?: string | null
+          program_id: string
+          snapshotted_at?: string | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          code?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_cycle?: number
+          curriculum_id?: string | null
+          deleted_at?: string | null
+          id?: string
+          intake_period?: string | null
+          intake_year?: number
+          name?: string
+          notes?: string | null
+          program_id?: string
+          snapshotted_at?: string | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_groups_curriculum_id_fkey"
+            columns: ["curriculum_id"]
+            isOneToOne: false
+            referencedRelation: "curriculums"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_groups_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "academic_programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_groups_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_groups_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subjects: {
         Row: {
           code: string
@@ -1690,6 +2056,45 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      user_milestone_dismissals: {
+        Row: {
+          dismissed_at: string
+          id: string
+          milestone_code: string
+          tenant_id: string | null
+          user_id: string
+        }
+        Insert: {
+          dismissed_at?: string
+          id?: string
+          milestone_code: string
+          tenant_id?: string | null
+          user_id: string
+        }
+        Update: {
+          dismissed_at?: string
+          id?: string
+          milestone_code?: string
+          tenant_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_milestone_dismissals_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_milestone_dismissals_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_profiles: {
         Row: {
@@ -1896,38 +2301,6 @@ export type Database = {
           },
         ]
       }
-      user_milestone_dismissals: {
-        Row: {
-          dismissed_at: string
-          id: string
-          milestone_code: string
-          tenant_id: string | null
-          user_id: string
-        }
-        Insert: {
-          dismissed_at?: string
-          id?: string
-          milestone_code: string
-          tenant_id?: string | null
-          user_id: string
-        }
-        Update: {
-          dismissed_at?: string
-          id?: string
-          milestone_code?: string
-          tenant_id?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_milestone_dismissals_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       tenants_public: {
@@ -2085,6 +2458,10 @@ export type Database = {
       set_audit_context: {
         Args: { p_ip?: string; p_user_agent?: string; p_user_id: string }
         Returns: undefined
+      }
+      snapshot_curriculum_into_group: {
+        Args: { p_curriculum_id: string; p_group_id: string }
+        Returns: number
       }
       user_tenants: { Args: never; Returns: string[] }
     }
